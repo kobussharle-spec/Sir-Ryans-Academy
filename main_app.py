@@ -135,12 +135,20 @@ with st.sidebar:
     st.header("📚 Subject Registry")
     subject = st.selectbox(
         "Select the field of study:",
-        ["General Knowledge", "Medicine", "Law", "Engineering", "Business", "Arts"]
+        [
+            "English: Tenses",
+            "English: Grammar",
+            "English: Pronunciation",
+            "English: Vocabulary",
+            "English: Conversation",
+            "English: Writing (Emails, Letters, Reports)",
+            "English: Preparing for IELTS",
+            "English: Interview Prep",
+            "English: Business English"
+        ]
     )
     st.session_state.current_subject = subject
-    st.info(f"Sir Ryan is currently prepared for: **{subject}**")
-
-    st.divider()
+    st.info(f"Sir Ryan is now the Head of: **{subject}**")
 
     # --- PDF UPLOADER ---
     st.header("📄 Study Materials")
