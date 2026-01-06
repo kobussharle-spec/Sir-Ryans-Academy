@@ -97,6 +97,23 @@ if not st.session_state.student_name:
         st.rerun()
     st.stop() # Wait for them to enter a name
 
+# --- 2. THE REGISTER (LOGIN) ---
+if not st.session_state.authenticated:
+    st.title("🏛️ Welcome to Sir Ryan's Academy")
+    name = st.text_input("Please enter your name for the register:")
+    password = st.text_input("Enter the Academy Password:", type="password")
+    
+    if st.button("Enter the Hub"):
+        if password == "Oxford2026" and name:
+            st.session_state.authenticated = True
+            st.session_state.student_name = name
+            st.rerun()
+        else:
+            st.error("Access Denied. Check your credentials, old sport.")
+    
+    # CRITICAL: Stop the app here if not logged in!
+    st.stop()
+
 # --- 5. THE ACADEMY SIDEBAR & GRADEBOOK ---
 with st.sidebar:
     st.title("🏫 Academy Controls")
