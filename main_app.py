@@ -97,15 +97,27 @@ if not st.session_state.authenticated:
     name_input = st.text_input("Please enter your name for the Academy Register:", placeholder="e.g. Master John")
     license_key = st.text_input("Enter your License Key:", type="password")
     
+    if not st.session_state.authenticated:
+    st.title("🏛️ Welcome to Sir Ryan's Academy")
+    name_input = st.text_input("Please enter your name for the Academy Register:", placeholder="e.g. Master John")
+    license_key = st.text_input("Enter your License Key:", type="password")
+    
     if st.button("Unlock the Study Hub"):
         if license_key == "Oxford2026" and name_input:
             st.session_state.authenticated = True
             st.session_state.student_name = name_input
             st.session_state.name = name_input
             st.session_state.needs_intro = True
+            
+            # --- SIR RYAN SPEAKS THE WELCOME ---
+            welcome_audio = f"Welcome to the Academy, {name_input}! It is an honour to have you here. Please, have a biscuit and let us begin."
+            speak_text(welcome_audio)
+            
+            st.success("The gates are opening...")
+            time.sleep(2) # Give him time to start speaking before the rerun
             st.rerun()
         else:
-            st.error("I'm afraid that key doesn't fit the lock, or you've forgotten to sign your name.")
+            st.error("I'm afraid that key doesn't fit the lock.")
     st.stop()
 
 # --- 5. THE ACADEMY SIDEBAR (FULL RESTORATION) ---
