@@ -11,6 +11,29 @@ import random
 import requests
 import urllib.parse
 
+import streamlit as st
+from groq import Groq
+# ... other imports ...
+
+# --- 1. DEFINE FUNCTIONS AT THE TOP ---
+def show_welcome_letter():
+    st.markdown(f"""
+    ### 📜 A Personal Note from the Headmaster
+    **To the Honourable {st.session_state.get('student_name', 'Scholar')},**
+    
+    It is with great pride that I welcome you to **Sir Ryan's Academy**. 
+    We shall pursue knowledge with the utmost **honour**.
+    """)
+    st.divider()
+
+# --- 2. LOGIN LOGIC ---
+# (Your password and name check code goes here)
+
+# --- 3. THE MAIN HUB ---
+if st.session_state.authenticated:
+    show_welcome_letter()  # Now the computer knows exactly what this is!
+    # ... rest of your sidebar and chat code ...
+
 # --- 1. PAGE CONFIG & INITIALIZATION ---
 st.set_page_config(page_title="Sir Ryan’s Academy", page_icon="🎓")
 
