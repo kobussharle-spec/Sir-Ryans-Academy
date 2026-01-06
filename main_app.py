@@ -75,7 +75,7 @@ st.markdown("""
 # --- 4. THE SECURITY GATE ---
 if not st.session_state.authenticated:
     # --- 6. THE HEADMASTER'S WELCOME ---
-def show_welcome_letter():
+    def show_welcome_letter():
     st.markdown(f"""
     ### 📜 A Personal Note from the Headmaster
     **To the Honourable {st.session_state.student_name},**
