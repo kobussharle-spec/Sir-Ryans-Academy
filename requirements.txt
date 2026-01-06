@@ -1,5 +1,5 @@
 streamlit
-ollama
+groq
 PyPDF2
 streamlit-mic-recorder
 edge-tts
