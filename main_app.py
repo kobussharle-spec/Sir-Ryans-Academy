@@ -101,47 +101,74 @@ if not st.session_state.student_name:
 with st.sidebar:
     st.title("🏫 Academy Controls")
     
-    # --- 🎓 THE GRADEBOOK ---
+    # 1. THE GRADEBOOK
     st.header("📜 Student Gradebook")
     if "gradebook" not in st.session_state:
-        st.session_state.gradebook = [] # Start with an empty book
+        st.session_state.gradebook = []
 
     if not st.session_state.gradebook:
         st.write("No grades recorded yet. Time to study!")
     else:
-        # Display the grades in a tidy table
         import pandas as pd
+        # We use a unique key for the table to avoid conflicts
         df = pd.DataFrame(st.session_state.gradebook)
         st.table(df)
 
     st.divider()
 
-    # --- SUBJECT SELECTION ---
+    # 2. SUBJECT SELECTION
     st.header("📚 Subject Registry")
     subject = st.selectbox(
         "Select the field of study:",
-        ["English: Tenses", "English: Grammar", "English: Vocabulary", "Medicine", "Law", "Business English"]
+        [
+            "English: Tenses", "English: Grammar", "English: Pronunciation",
+            "English: Vocabulary", "English: Conversation", 
+            "English: Writing (Emails, Letters, Reports)",
+            "English: Preparing for IELTS", "English: Interview Prep",
+            "English: Business English", "Medicine", "Law", "Engineering",
+            "Business Management", "Arts & Humanities", "General Knowledge"
+        ],
+        key="subject_selector" # Unique ID
     )
     st.session_state.current_subject = subject
 
     st.divider()
 
-    # --- EXAMINATION HALL ---
+    # 3. STUDY MATERIALS
+    st.header("📄 Study Materials")
+    uploaded_file = st.file_uploader("Upload your PDF notes:", type="pdf", key="sidebar_uploader")
+
+    st.divider()
+
+    # 4. EXAMINATION HALL
     st.header("📝 Examination Hall")
-    if st.button("📜 Start Formal Assessment"):
+    # Added a unique 'key' here to prevent the Duplicate ID error!
+    if st.button("📜 Start Formal Assessment", key="main_exam_button"):
         if not uploaded_file:
-            st.warning("Please upload materials first!")
+            st.warning("Please upload materials before the exam, old sport!")
         else:
-            # We add a 'placeholder' grade to show we are testing
+            # Add entry to Gradebook
             st.session_state.gradebook.append({
                 "Subject": subject, 
-                "Student": st.session_state.student_name, 
+                "Student": st.session_state.get("student_name", "Scholar"), 
                 "Grade": "In Progress..."
             })
             
+            # Prepare the exam
             st.session_state.messages = []
-            exam_instruction = f"Sir Ryan, conduct a formal exam on {subject} for {st.session_state.student_name}."
+            exam_instruction = (
+                f"Sir Ryan, conduct a formal exam on {subject} for {st.session_state.student_name}. "
+                "Ask 3 questions based on the PDF, one at a time. Grade out of 100 at the end."
+            )
             st.session_state.messages.append({"role": "user", "content": exam_instruction})
+            
+            # Get immediate response from Groq
+            client = Groq(api_key=st.secrets["GROQ_API_KEY"])
+            completion = client.chat.completions.create(
+                model="llama-3.3-70b-versatile",
+                messages=[{"role": "system", "content": f"You are Sir Ryan, expert in {subject}."}] + st.session_state.messages,
+            )
+            st.session_state.messages.append({"role": "assistant", "content": completion.choices[0].message.content})
             st.rerun()
 
     # --- DAILY INSPIRATION ---
