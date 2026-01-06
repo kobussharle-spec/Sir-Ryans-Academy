@@ -127,37 +127,52 @@ with st.sidebar:
     st.markdown(f"**Scholar:** {st.session_state.name}")
     st.markdown(f"**Level:** {st.session_state.english_level if st.session_state.english_level else 'Unassessed'}")
 
-# --- 5. THE EXAMINATION HALL (SIDEBAR) ---
+# --- 5. THE ACADEMY SIDEBAR ---
 with st.sidebar:
-    st.divider()
-    st.header("📝 Examination Hall")
+    st.title("🏫 Academy Controls")
     
+    # --- SUBJECT SELECTION ---
+    st.header("📚 Subject Registry")
+    subject = st.selectbox(
+        "Select the field of study:",
+        ["General Knowledge", "Medicine", "Law", "Engineering", "Business", "Arts"]
+    )
+    st.session_state.current_subject = subject
+    st.info(f"Sir Ryan is currently prepared for: **{subject}**")
+
+    st.divider()
+
+    # --- PDF UPLOADER ---
+    st.header("📄 Study Materials")
+    uploaded_file = st.file_uploader("Upload your lecture notes (PDF):", type="pdf")
+    if uploaded_file:
+        st.success("Materials received by the Librarian.")
+
+    st.divider()
+
+    # --- EXAMINATION HALL ---
+    st.header("📝 Examination Hall")
     if st.button("📜 Start Formal Assessment"):
-        # 1. Clear the old classroom chatter
-        st.session_state.messages = []
-        
-        # 2. Prepare the Headmaster's instructions
-        exam_instruction = (
-            f"Sir Ryan, please begin a formal oral examination for {st.session_state.get('student_name', 'Scholar')}. "
-            "Using the uploaded PDF, ask me 3 challenging questions one at a time. "
-            "Wait for my answer after each, then provide a final grade out of 100."
-        )
-        
-        # 3. Add the instruction to the history
-        st.session_state.messages.append({"role": "user", "content": exam_instruction})
-        
-        # 4. Trigger the 'Brain' immediately so the user doesn't have to wait
-        client = Groq(api_key=st.secrets["GROQ_API_KEY"])
-        completion = client.chat.completions.create(
-            model="llama-3.3-70b-versatile",
-            messages=[{"role": "system", "content": "You are Sir Ryan, the Headmaster."}] + st.session_state.messages,
-        )
-        
-        response = completion.choices[0].message.content
-        st.session_state.messages.append({"role": "assistant", "content": response})
-        
-        # 5. Refresh the page to show the new messages
-        st.rerun()
+        if not uploaded_file:
+            st.warning("Please upload study materials before starting the exam!")
+        else:
+            st.session_state.messages = []
+            exam_instruction = (
+                f"Sir Ryan, please conduct a formal examination for {st.session_state.get('student_name', 'Scholar')} "
+                f"on the subject of {subject}. Use the uploaded PDF to ask 3 questions one by one. "
+                "Grade the student out of 100 at the end."
+            )
+            st.session_state.messages.append({"role": "user", "content": exam_instruction})
+            
+            # Immediate response logic
+            client = Groq(api_key=st.secrets["GROQ_API_KEY"])
+            completion = client.chat.completions.create(
+                model="llama-3.3-70b-versatile",
+                messages=[{"role": "system", "content": f"You are Sir Ryan, expert in {subject}."}] + st.session_state.messages,
+            )
+            response = completion.choices[0].message.content
+            st.session_state.messages.append({"role": "assistant", "content": response})
+            st.rerun()
     
     # Study Streak
     today = datetime.date.today()
