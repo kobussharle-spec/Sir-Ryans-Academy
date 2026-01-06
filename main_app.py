@@ -466,3 +466,10 @@ with st.expander("🎓 View Transcript"):
 if st.button("🎓 Graduate & Download Report"):
     st.session_state.graduated = True
     st.rerun()
+
+# --- FINAL ACADEMY FOOTER ---
+st.sidebar.markdown("---") # Adds a line at the bottom of the sidebar
+st.sidebar.caption("© 2026 Sir Ryan's Academy | Established with Honour")
+
+# This puts it at the bottom of the main chat area too
+st.caption("Sir Ryan's Academy - Excellence in English & Beyond")
