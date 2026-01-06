@@ -10,63 +10,39 @@ import datetime
 import random
 import requests
 import urllib.parse
-import streamlit as st
-from groq import Groq
-# ... other imports ...
+import pandas as pd
+from io import BytesIO
 
-# --- 1. INITIALISE ACADEMY STATE ---
-if "authenticated" not in st.session_state:
-    st.session_state.authenticated = False
-
-if "student_name" not in st.session_state:
-    st.session_state.student_name = "Scholar"
-
-if "messages" not in st.session_state:
-    st.session_state.messages = []
-
-# --- 1. DEFINE FUNCTIONS AT THE TOP ---
-def show_welcome_letter():
-    st.markdown(f"""
-    ### 📜 A Personal Note from the Headmaster
-    **To the Honourable {st.session_state.get('student_name', 'Scholar')},**
-    
-    It is with great pride that I welcome you to **Sir Ryan's Academy**. 
-    We shall pursue knowledge with the utmost **honour**.
-    """)
-    st.divider()
-
-# --- 2. LOGIN LOGIC ---
-# (Your password and name check code goes here)
-
-# --- 3. THE MAIN HUB ---
-if st.session_state.authenticated:
-    show_welcome_letter()  # Now the computer knows exactly what this is!
-    # ... rest of your sidebar and chat code ...
-
-# --- 1. PAGE CONFIG & INITIALIZATION ---
+# --- 1. PAGE CONFIG ---
 st.set_page_config(page_title="Sir Ryan’s Academy", page_icon="🎓")
 
-# Initialize all session states in one clean sweep
-initial_states = {
-    "authenticated": False,
-    "name": "Student",
-    "english_level": None,
-    "vocab_bank": [],
-    "homework_history": [],
-    "messages": [],
-    "merits": 0,
-    "graduated": False,
-    "needs_intro": False,
-    "homework_task": None,
-    "streak_count": 1,
-    "last_visit_date": datetime.date.today()
-}
+# --- 2. INITIALISE ACADEMY STATE ---
+if "authenticated" not in st.session_state:
+    st.session_state.authenticated = False
+if "student_name" not in st.session_state:
+    st.session_state.student_name = "Scholar"
+if "messages" not in st.session_state:
+    st.session_state.messages = []
+if "gradebook" not in st.session_state:
+    st.session_state.gradebook = []
+if "english_level" not in st.session_state:
+    st.session_state.english_level = None
+if "vocab_bank" not in st.session_state:
+    st.session_state.vocab_bank = []
+if "homework_history" not in st.session_state:
+    st.session_state.homework_history = []
+if "merits" not in st.session_state:
+    st.session_state.merits = 0
+if "graduated" not in st.session_state:
+    st.session_state.graduated = False
+if "homework_task" not in st.session_state:
+    st.session_state.homework_task = None
+if "streak_count" not in st.session_state:
+    st.session_state.streak_count = 1
+if "last_visit_date" not in st.session_state:
+    st.session_state.last_visit_date = datetime.date.today()
 
-for key, value in initial_states.items():
-    if key not in st.session_state:
-        st.session_state[key] = value
-
-# --- 2. VOICE FUNCTION ---
+# --- 3. HELPER FUNCTIONS ---
 def speak_text(text):
     clean_text = text.replace("**", "").replace(":", ".").replace("_", "").replace("#", "")
     filename = "academy_voice.mp3"
@@ -76,451 +52,104 @@ def speak_text(text):
         asyncio.set_event_loop(loop)
         loop.run_until_complete(communicate.save(filename))
         loop.close()
-        
         with open(filename, "rb") as f:
             data = f.read()
             b64 = base64.b64encode(data).decode()
-        
-        audio_id = str(time.time())
-        audio_html = f'<audio autoplay="true" key="{audio_id}"><source src="data:audio/mp3;base64,{b64}" type="audio/mp3"></audio>'
+        audio_html = f'<audio autoplay="true"><source src="data:audio/mp3;base64,{b64}" type="audio/mp3"></audio>'
         st.markdown(audio_html, unsafe_allow_html=True)
     except Exception as e:
-        st.sidebar.warning(f"Sir Ryan's voice is a bit hoarse: {e}")
+        st.sidebar.warning("Sir Ryan's voice is a bit hoarse.")
 
-# --- 3. CUSTOM CSS ---
-st.markdown("""
-    <style>
-    div.stButton > button {
-        background-color: #002366;
-        color: white;
-        border-radius: 10px;
-        height: 3em;
-        width: 100%;
-    }
-    div.stButton > button:hover {
-        background-color: #003399;
-        color: #FFD700;
-    }
-    </style>
-""", unsafe_allow_html=True)
+def show_welcome_letter():
+    st.markdown(f"""
+    ### 📜 A Personal Note from the Headmaster
+    **To the Honourable {st.session_state.student_name},**
+    It is with great pride that I welcome you to **Sir Ryan's Academy**. We shall pursue knowledge with the utmost **honour**.
+    """)
+    st.divider()
 
 # --- 4. THE SECURITY GATE ---
 if not st.session_state.authenticated:
-    # --- 6. THE HEADMASTER'S WELCOME ---
-    def show_welcome_letter():
-        st.markdown(f"""
-        ### 📜 A Personal Note from the Headmaster
-        **To the Honourable {st.session_state.student_name},**
-    
-        It is with great pride that I welcome you to **Sir Ryan's Academy**. You have chosen a path of 
-        excellence, and I am delighted to oversee your journey through the vast landscapes of 
-        {st.session_state.current_subject}.
-    
-        In these halls, we value precision, dedication, and the occasional **biscuit** during study breaks. 
-        Whether you are here to master the intricacies of **English Grammar** or to prepare for the 
-        rigours of **Medicine**, know that my door—and the Examination Hall—is always open.
-    
-        Please upload your study materials to the Librarian in the sidebar, and let us begin 
-        our pursuit of knowledge.
-    
-        *Signed,*
-        **Sir Ryan** *Headmaster, The Academy*
-        """)
-        st.divider()
-
-# Call the function at the start of the hub
-if st.session_state.authenticated:
-    show_welcome_letter()
-    # ... (Your existing Chat and Sidebar code follows)
-    st.title("🛡️ The Academy Gate")
-    license_key = st.text_input("Enter your License Key:", type="password")
-    if st.button("Unlock the Study Hub"):
-        if license_key == "Oxford2026":
-            st.session_state.authenticated = True
-            st.session_state.needs_intro = True
-            st.rerun()
-        else:
-            st.error("I'm afraid that key doesn't fit the lock.")
-    st.stop()
-
-# --- 4. THE STUDENT REGISTER ---
-if "student_name" not in st.session_state:
-    st.session_state.student_name = ""
-
-# Only ask for the name once
-if not st.session_state.student_name:
-    st.session_state.student_name = st.text_input("Please enter your name for the Academy Register:", placeholder="e.g. Master John")
-    if st.session_state.student_name:
-        st.success(f"Excellent! Sir Ryan is ready for you, {st.session_state.student_name}.")
-        st.rerun()
-    st.stop() # Wait for them to enter a name
-
-# --- 2. THE REGISTER (LOGIN) ---
-if not st.session_state.authenticated:
     st.title("🏛️ Welcome to Sir Ryan's Academy")
-    name = st.text_input("Please enter your name for the register:")
-    password = st.text_input("Enter the Academy Password:", type="password")
+    name_input = st.text_input("Please enter your name for the register:", placeholder="e.g. Master John")
+    password_input = st.text_input("Enter the Academy Password (License Key):", type="password")
     
     if st.button("Enter the Hub"):
-        if password == "Oxford2026" and name:
+        if password_input == "Oxford2026" and name_input:
             st.session_state.authenticated = True
-            st.session_state.student_name = name
+            st.session_state.student_name = name_input
             st.rerun()
         else:
-            st.error("Access Denied. Check your credentials, old sport.")
-    
-    # CRITICAL: Stop the app here if not logged in!
+            st.error("I'm afraid those credentials don't fit the lock, old sport.")
     st.stop()
 
-# --- 5. THE ACADEMY SIDEBAR & GRADEBOOK ---
+# --- 5. THE ACADEMY SIDEBAR (All-In-One) ---
 with st.sidebar:
     st.title("🏫 Academy Controls")
     
-    # 1. THE GRADEBOOK
     st.header("📜 Student Gradebook")
-    if "gradebook" not in st.session_state:
-        st.session_state.gradebook = []
-
     if not st.session_state.gradebook:
-        st.write("No grades recorded yet. Time to study!")
+        st.write("No grades recorded yet.")
     else:
-        import pandas as pd
-        # We use a unique key for the table to avoid conflicts
-        df = pd.DataFrame(st.session_state.gradebook)
-        st.table(df)
+        st.table(pd.DataFrame(st.session_state.gradebook))
 
     st.divider()
-
-    # 2. SUBJECT SELECTION
     st.header("📚 Subject Registry")
-    subject = st.selectbox(
-        "Select the field of study:",
-        [
-            "English: Tenses", "English: Grammar", "English: Pronunciation",
-            "English: Vocabulary", "English: Conversation", 
-            "English: Writing (Emails, Letters, Reports)",
-            "English: Preparing for IELTS", "English: Interview Prep",
-            "English: Business English", "Medicine", "Law", "Engineering",
-            "Business Management", "Arts & Humanities", "General Knowledge"
-        ],
-        key="subject_selector" # Unique ID
-    )
+    subject = st.selectbox("Select the field of study:", [
+        "English: Grammar", "English: Vocabulary", "English: Conversation", 
+        "English: Business English", "Medicine", "Law"
+    ], key="master_subject_selector")
     st.session_state.current_subject = subject
 
-    st.divider()
-
-    # 3. STUDY MATERIALS
     st.header("📄 Study Materials")
-    uploaded_file = st.file_uploader("Upload your PDF notes:", type="pdf", key="sidebar_uploader")
+    uploaded_file = st.file_uploader("Upload your PDF notes:", type="pdf")
 
-    st.divider()
-
-    # 4. EXAMINATION HALL
-    st.header("📝 Examination Hall")
-    # Added a unique 'key' here to prevent the Duplicate ID error!
-    if st.button("📜 Start Formal Assessment", key="main_exam_button"):
+    if st.button("📜 Start Formal Assessment", key="exam_hall_btn"):
         if not uploaded_file:
-            st.warning("Please upload materials before the exam, old sport!")
+            st.warning("Upload materials first, old sport!")
         else:
-            # Add entry to Gradebook
-            st.session_state.gradebook.append({
-                "Subject": subject, 
-                "Student": st.session_state.get("student_name", "Scholar"), 
-                "Grade": "In Progress..."
-            })
-            
-            # Prepare the exam
-            st.session_state.messages = []
-            exam_instruction = (
-                f"Sir Ryan, conduct a formal exam on {subject} for {st.session_state.student_name}. "
-                "Ask 3 questions based on the PDF, one at a time. Grade out of 100 at the end."
-            )
-            st.session_state.messages.append({"role": "user", "content": exam_instruction})
-            
-            # Get immediate response from Groq
-            client = Groq(api_key=st.secrets["GROQ_API_KEY"])
-            completion = client.chat.completions.create(
-                model="llama-3.3-70b-versatile",
-                messages=[{"role": "system", "content": f"You are Sir Ryan, expert in {subject}."}] + st.session_state.messages,
-            )
-            st.session_state.messages.append({"role": "assistant", "content": completion.choices[0].message.content})
-            st.rerun()
-
-    # --- DAILY INSPIRATION ---
-    st.write("---")
-    st.subheader("💡 Today's Scholarly Thought")
-    st.info("'The man who does not read has no advantage over the man who cannot read.' — Mark Twain")
-
-    # Word of the Day Selection
-    words_dict = {
-        "Pulchritudinous": "Breath-taking, physically beautiful.",
-        "Mellifluous": "Sweet or musical; pleasant to hear.",
-        "Quintessential": "The most perfect example of a quality.",
-        "Fastidious": "Very attentive to accuracy and detail.",
-        "Sanguine": "Optimistic in a difficult situation."
-    }
-    day_of_year = datetime.datetime.now().timetuple().tm_yday
-    word_list = list(words_dict.keys())
-    daily_word = word_list[day_of_year % len(word_list)]
-
-    with st.expander("🇬🇧 Word of the Day"):
-        st.info(f"**{daily_word}**")
-        st.write(f"*{words_dict[daily_word]}*")
-
-    # User Profile Info
-    st.write("---")
-    st.markdown(f"**Scholar:** {st.session_state.name}")
-    st.markdown(f"**Level:** {st.session_state.english_level if st.session_state.english_level else 'Unassessed'}")
-
-# --- 5. THE ACADEMY SIDEBAR ---
-with st.sidebar:
-    st.title("🏫 Academy Controls")
-    
-    # --- SUBJECT SELECTION ---
-    st.header("📚 Subject Registry")
-    subject = st.selectbox(
-        "Select the field of study:",
-        [
-            "English: Tenses",
-            "English: Grammar",
-            "English: Pronunciation",
-            "English: Vocabulary",
-            "English: Conversation",
-            "English: Writing (Emails, Letters, Reports)",
-            "English: Preparing for IELTS",
-            "English: Interview Prep",
-            "English: Business English",
-            "Medicine", 
-            "Law", 
-            "Engineering", 
-            "Business Management", 
-            "Arts & Humanities", 
-            "General Knowledge"
-        ]
-    )
-    st.session_state.current_subject = subject
-    st.info(f"Sir Ryan is now the Head of: **{subject}**")
-
-    # --- PDF UPLOADER ---
-    st.header("📄 Study Materials")
-    uploaded_file = st.file_uploader("Upload your lecture notes (PDF):", type="pdf")
-    if uploaded_file:
-        st.success("Materials received by the Librarian.")
+            st.session_state.gradebook.append({"Subject": subject, "Student": st.session_state.student_name, "Grade": "In Progress..."})
+            st.info("Exam initialised in the Main Hall!")
 
     st.divider()
-
-    # Study Streak
-    today = datetime.date.today()
-    if st.session_state.last_visit_date != today:
-        if st.session_state.last_visit_date == today - datetime.timedelta(days=1):
-            st.session_state.streak_count += 1
-        else:
-            st.session_state.streak_count = 1
-        st.session_state.last_visit_date = today
     st.markdown(f"🔥 **Study Streak:** {st.session_state.streak_count} Days")
-
-    st.write("---")
-
-    # 1. THE REFERENCE LIBRARY
-    st.subheader("🏛️ Reference Library")
-    with st.expander("🇬🇧 British Idioms"):
-        st.write("* 'Chuffed to bits': Happy")
-        st.write("* 'A spot of bother': A problem")
-        st.write("* 'Taking the biscuit': Particularly surprising/annoying")
-    
-    with st.expander("📜 Literature Links"):
-        st.markdown("[🕵️ Sherlock Holmes](https://www.gutenberg.org/files/1661/1661-h/1661-h.htm)")
-        st.markdown("[🐇 Alice in Wonderland](https://www.gutenberg.org/files/11/11-h/11-h.htm)")
-        st.markdown("[Pride & Prejudice](https://www.gutenberg.org/ebooks/1342)")
-
-    # 2. THE TOOLS (Dictionary & Progress)
-    st.subheader("🛠️ Scholar Tools")
     
     with st.expander("📕 Quick Dictionary"):
-        word_to_lookup = st.text_input("Look up a word:", key="dict_search_sidebar").strip()
-        if word_to_lookup:
-            try:
-                resp = requests.get(f"https://api.dictionaryapi.dev/api/v2/entries/en/{word_to_lookup}")
-                if resp.status_code == 200:
-                    data = resp.json()[0]
-                    st.write(f"**Def:** {data['meanings'][0]['definitions'][0]['definition']}")
-                else: st.warning("Word not found.")
-            except: st.error("Library is closed (Offline).")
-
-    # Progress Bar
-    word_count = len(st.session_state.vocab_bank)
-    goal = 10
-    progress = min(word_count / goal, 1.0)
-    st.caption(f"Vocabulary Progress: {word_count}/{goal}")
-    st.progress(progress)
-
-    # London Weather
-    try:
-        weather_data = requests.get("https://wttr.in/London?format=%c+%t").text
-        st.info(f"🇬🇧 London: {weather_data}")
-    except: st.caption("Weather vane stuck!")
-
-    st.write("---")
-
-    # 3. ADMINISTRATIVE & CONTACT
-    your_phone_number = "27833976517"
-    encoded_msg = urllib.parse.quote("Hello Dean! I need assistance...")
-    st.link_button("💬 WhatsApp Dean", f"https://wa.me/{your_phone_number}?text={encoded_msg}")
+        word = st.text_input("Look up a word:").strip()
+        if word:
+            resp = requests.get(f"https://api.dictionaryapi.dev/api/v2/entries/en/{word}")
+            if resp.status_code == 200:
+                st.write(resp.json()[0]['meanings'][0]['definitions'][0]['definition'])
     
-    if st.button("🧹 Reset Academy Session", key="sidebar_final_reset"):
-        st.session_state.clear()
-        st.rerun()
-    
-    st.caption("© 2026 J Steenekamp")
+    st.sidebar.caption("© 2026 Sir Ryan's Academy | Established with Honour")
 
-# --- 6. PLACEMENT TEST (Gatekeeper) ---
-if st.session_state.name != "Student" and st.session_state.english_level is None:
-    st.title(f"🎓 Welcome, {st.session_state.name}!")
-    with st.container(border=True):
-        st.subheader("Placement Evaluation")
-        path = st.radio("Proceed:", ["I know my level", "Test me!"], horizontal=True)
-        if path == "I know my level":
-            lvl = st.selectbox("Rank:", ["Beginner", "Intermediate", "Advanced"])
-            if st.button("Confirm"):
-                st.session_state.english_level = lvl
-                st.rerun()
-        else:
-            ans = st.text_input("If I ___ (be) you, I'd study. (Fill blank):")
-            if st.button("Submit"):
-                if "were" in ans.lower(): st.session_state.english_level = "Advanced"
-                elif "was" in ans.lower(): st.session_state.english_level = "Intermediate"
-                else: st.session_state.english_level = "Beginner"
-                st.rerun()
-    st.stop()
+# --- 6. MAIN CLASSROOM ---
+show_welcome_letter()
 
-# --- 7. GRADUATION VIEW ---
-if st.session_state.graduated:
-    st.balloons()
-    cert_name = st.session_state.get("name", "Scholar")
-    st.markdown(f'<div style="border: 5px solid #002366; padding: 20px; text-align: center;"><h1>Graduation Certificate</h1><p>Well done, {cert_name}!</p></div>', unsafe_allow_html=True)
-    if st.button("Back to Study"):
-        st.session_state.graduated = False
+if st.session_state.english_level is None:
+    st.subheader("Placement Evaluation")
+    lvl = st.radio("Choose your level:", ["Beginner", "Intermediate", "Advanced"], horizontal=True)
+    if st.button("Confirm Level"):
+        st.session_state.english_level = lvl
         st.rerun()
     st.stop()
 
-# --- 8. MAIN CLASSROOM ---
-st.markdown("<h1 style='text-align: center; color: #002366;'>🎓 Sir Ryan’s Academy</h1>", unsafe_allow_html=True)
-
-# --- NEW: THE RESTORED QUICK ACTION BUTTONS ---
-st.write("### ⚡ Quick Actions")
-btn_col1, btn_col2, btn_col3 = st.columns(3)
-
-with btn_col1:
-    if st.button("📝 Start Quiz", key="main_quiz_btn"):
-        st.session_state.messages.append({"role": "user", "content": "Sir Ryan, please give me a quick 3-question quiz on British English!"})
-        st.rerun()
-
-with btn_col2:
-    if st.button("📚 New Homework", key="main_hw_btn"):
-        # This triggers the assignment logic
-        st.session_state.homework_task = random.choice([
-            "Explain 'Their' vs 'There'", 
-            "Write a paragraph about London", 
-            "Define 'Quintessential'"
-        ])
-        st.rerun()
-
-with btn_col3:
-    if st.button("🏆 View Merits", key="main_merit_btn"):
-        st.toast(f"You have earned {st.session_state.merits} merits so far!")
-
-st.write("---")
-
-# Intro Greeting
-if st.session_state.needs_intro:
-    intro = f"Good morning! I am Sir Ryan. Welcome to the Academy, {st.session_state.name}. How shall we begin?"
-    st.session_state.messages.append({"role": "assistant", "content": intro})
-    speak_text(intro)
-    st.session_state.needs_intro = False
-
-    # --- 8.5 INSTRUCTION & PRIVACY BOXES ---
-st.write("---")
-with st.expander("📖 How to use the Academy"):
-    st.markdown("""
-    If the microphone is being a bit 'dodgy', follow these steps:
-    1. **Type your question** in the chat box at the bottom.
-    2. **Press Enter** on your keyboard.
-    3. **Wait a tick** for Sir Ryan to consult his books.
-    4. **Listen:** His voice will play automatically once the text appears.
-    *Note: Ensure your speakers are on and you've clicked somewhere on the page to 'wake up' the audio!*
-    """)
-
-with st.expander("🛡️ Privacy & Security"):
-    st.info("""
-    **Your Privacy is Paramount:**
-    * **Local Learning:** Your typed questions are processed by Ollama right here on your laptop.
-    * **Voice Processing:** Only the text (not your voice) is briefly sent to the cloud to generate Sir Ryan's accent.
-    * **Data:** We do not store your personal conversations outside of this session.
-    """)
-
-# Homework & Voice Tasks
-col1, col2 = st.columns(2)
-
-with col1:
-    with st.expander("📝 Homework Hub", expanded=True): # Added 'expanded=True' so it's easy to see
-        if st.button("Assign New Task", key="assign_hw_main"):
-            st.session_state.homework_task = random.choice([
-                "Explain 'Their' vs 'There'", 
-                "Write a paragraph about London", 
-                "Define the word 'Quintessential'"
-            ])
-        
-        if st.session_state.homework_task:
-            st.info(f"**Current Task:** {st.session_state.homework_task}")
-            hw_ans = st.text_area("Write your answer here:", key="hw_input_area")
-            if st.button("Hand In Homework", key="submit_hw_btn"):
-                st.session_state.homework_history.append({
-                    "task": st.session_state.homework_task, 
-                    "answer": hw_ans
-                })
-                st.session_state.merits += 1
-                st.session_state.homework_task = None
-                st.balloons()
-                st.rerun()
-with col2:
-    with st.expander("🎤 Recording Studio"):
-        uploaded_audio = st.file_uploader("Upload Practice Audio", type=['mp3', 'wav'])
-        if uploaded_audio: st.audio(uploaded_audio)
-
-# --- 7. CHAT HUB (THE NEW CLOUD BRAIN) ---
+# Chat Hub
+st.write(f"### ⚡ Current Lesson: {subject}")
 if prompt := st.chat_input("Ask Sir Ryan anything..."):
     st.session_state.messages.append({"role": "user", "content": prompt})
     with st.chat_message("user"):
         st.markdown(prompt)
 
     with st.chat_message("assistant"):
-        # This tells the app to use the 'Golden Key' in your Secrets vault
         client = Groq(api_key=st.secrets["GROQ_API_KEY"])
-        
-        # We send the conversation to Groq instead of Ollama
         completion = client.chat.completions.create(
             model="llama-3.3-70b-versatile",
-            messages=[{"role": "system", "content": "You are Sir Ryan, a posh British tutor."}] + st.session_state.messages,
+            messages=[{"role": "system", "content": f"You are Sir Ryan, a posh British tutor. The subject is {subject}."}] + st.session_state.messages,
         )
-        
         response = completion.choices[0].message.content
         st.markdown(response)
+        st.session_state.messages.append({"role": "assistant", "content": response})
         speak_text(response)
-        
-    st.session_state.messages.append({"role": "assistant", "content": response})
 
-# Transcript & Graduation Button
-st.write("---")
-with st.expander("🎓 View Transcript"):
-    for h in st.session_state.homework_history:
-        st.write(f"**Task:** {h['task']}\n*Ans:* {h['answer']}")
-if st.button("🎓 Graduate & Download Report"):
-    st.session_state.graduated = True
-    st.rerun()
-
-# --- FINAL ACADEMY FOOTER ---
-st.sidebar.markdown("---") # Adds a line at the bottom of the sidebar
-st.sidebar.caption("© 2026 Sir Ryan's Academy | Established with Honour")
-
-# This puts it at the bottom of the main chat area too
 st.caption("Sir Ryan's Academy - Excellence in English & Beyond")
