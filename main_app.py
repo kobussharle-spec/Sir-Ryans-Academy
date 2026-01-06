@@ -293,24 +293,27 @@ with col2:
         uploaded_audio = st.file_uploader("Upload Practice Audio", type=['mp3', 'wav'])
         if uploaded_audio: st.audio(uploaded_audio)
 
-# Chat Hub
-for msg in st.session_state.messages:
-    with st.chat_message(msg["role"]): st.markdown(msg["content"])
-
-prompt = st.chat_input("Ask Sir Ryan...")
-if prompt:
+# --- 7. CHAT HUB (THE NEW CLOUD BRAIN) ---
+if prompt := st.chat_input("Ask Sir Ryan anything..."):
     st.session_state.messages.append({"role": "user", "content": prompt})
-    with st.chat_message("user"): st.markdown(prompt)
+    with st.chat_message("user"):
+        st.markdown(prompt)
+
     with st.chat_message("assistant"):
-        with st.status("Consulting books..."):
-            resp = ollama.chat(model='llama3.2:1b', messages=st.session_state.messages)
-            ans = resp['message']['content']
-            if "Vocab:" in ans:
-                word = ans.split("Vocab:")[1].split()[0].strip(",.?!")
-                if word not in st.session_state.vocab_bank: st.session_state.vocab_bank.append(word)
-            st.session_state.messages.append({"role": "assistant", "content": ans})
-            st.markdown(ans)
-            speak_text(ans)
+        # This tells the app to use the 'Golden Key' in your Secrets vault
+        client = Groq(api_key=st.secrets["GROQ_API_KEY"])
+        
+        # We send the conversation to Groq instead of Ollama
+        completion = client.chat.completions.create(
+            model="llama-3.3-70b-versatile",
+            messages=[{"role": "system", "content": "You are Sir Ryan, a posh British tutor."}] + st.session_state.messages,
+        )
+        
+        response = completion.choices[0].message.content
+        st.markdown(response)
+        speak_text(response)
+        
+    st.session_state.messages.append({"role": "assistant", "content": response})
 
 # Transcript & Graduation Button
 st.write("---")
