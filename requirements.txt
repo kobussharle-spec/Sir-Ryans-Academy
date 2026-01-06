@@ -1,0 +1,7 @@
+streamlit
+ollama
+PyPDF2
+streamlit-mic-recorder
+edge-tts
+asyncio
+requests
