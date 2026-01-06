@@ -144,7 +144,13 @@ with st.sidebar:
             "English: Writing (Emails, Letters, Reports)",
             "English: Preparing for IELTS",
             "English: Interview Prep",
-            "English: Business English"
+            "English: Business English",
+            "Medicine", 
+            "Law", 
+            "Engineering", 
+            "Business Management", 
+            "Arts & Humanities", 
+            "General Knowledge"
         ]
     )
     st.session_state.current_subject = subject
