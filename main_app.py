@@ -97,9 +97,52 @@ if not st.session_state.student_name:
         st.rerun()
     st.stop() # Wait for them to enter a name
 
-# --- 5. THE ACADEMY SIDEBAR (The Master Office) ---
+# --- 5. THE ACADEMY SIDEBAR & GRADEBOOK ---
 with st.sidebar:
-    st.title("🏫 Academy Office")
+    st.title("🏫 Academy Controls")
+    
+    # --- 🎓 THE GRADEBOOK ---
+    st.header("📜 Student Gradebook")
+    if "gradebook" not in st.session_state:
+        st.session_state.gradebook = [] # Start with an empty book
+
+    if not st.session_state.gradebook:
+        st.write("No grades recorded yet. Time to study!")
+    else:
+        # Display the grades in a tidy table
+        import pandas as pd
+        df = pd.DataFrame(st.session_state.gradebook)
+        st.table(df)
+
+    st.divider()
+
+    # --- SUBJECT SELECTION ---
+    st.header("📚 Subject Registry")
+    subject = st.selectbox(
+        "Select the field of study:",
+        ["English: Tenses", "English: Grammar", "English: Vocabulary", "Medicine", "Law", "Business English"]
+    )
+    st.session_state.current_subject = subject
+
+    st.divider()
+
+    # --- EXAMINATION HALL ---
+    st.header("📝 Examination Hall")
+    if st.button("📜 Start Formal Assessment"):
+        if not uploaded_file:
+            st.warning("Please upload materials first!")
+        else:
+            # We add a 'placeholder' grade to show we are testing
+            st.session_state.gradebook.append({
+                "Subject": subject, 
+                "Student": st.session_state.student_name, 
+                "Grade": "In Progress..."
+            })
+            
+            st.session_state.messages = []
+            exam_instruction = f"Sir Ryan, conduct a formal exam on {subject} for {st.session_state.student_name}."
+            st.session_state.messages.append({"role": "user", "content": exam_instruction})
+            st.rerun()
 
     # --- DAILY INSPIRATION ---
     st.write("---")
