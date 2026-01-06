@@ -85,6 +85,18 @@ if not st.session_state.authenticated:
             st.error("I'm afraid that key doesn't fit the lock.")
     st.stop()
 
+# --- 4. THE STUDENT REGISTER ---
+if "student_name" not in st.session_state:
+    st.session_state.student_name = ""
+
+# Only ask for the name once
+if not st.session_state.student_name:
+    st.session_state.student_name = st.text_input("Please enter your name for the Academy Register:", placeholder="e.g. Master John")
+    if st.session_state.student_name:
+        st.success(f"Excellent! Sir Ryan is ready for you, {st.session_state.student_name}.")
+        st.rerun()
+    st.stop() # Wait for them to enter a name
+
 # --- 5. THE ACADEMY SIDEBAR (The Master Office) ---
 with st.sidebar:
     st.title("🏫 Academy Office")
