@@ -74,6 +74,32 @@ st.markdown("""
 
 # --- 4. THE SECURITY GATE ---
 if not st.session_state.authenticated:
+    # --- 6. THE HEADMASTER'S WELCOME ---
+def show_welcome_letter():
+    st.markdown(f"""
+    ### 📜 A Personal Note from the Headmaster
+    **To the Honourable {st.session_state.student_name},**
+    
+    It is with great pride that I welcome you to **Sir Ryan's Academy**. You have chosen a path of 
+    excellence, and I am delighted to oversee your journey through the vast landscapes of 
+    {st.session_state.current_subject}.
+    
+    In these halls, we value precision, dedication, and the occasional **biscuit** during study breaks. 
+    Whether you are here to master the intricacies of **English Grammar** or to prepare for the 
+    rigours of **Medicine**, know that my door—and the Examination Hall—is always open.
+    
+    Please upload your study materials to the Librarian in the sidebar, and let us begin 
+    our pursuit of knowledge.
+    
+    *Signed,*
+    **Sir Ryan** *Headmaster, The Academy*
+    """)
+    st.divider()
+
+# Call the function at the start of the hub
+if st.session_state.authenticated:
+    show_welcome_letter()
+    # ... (Your existing Chat and Sidebar code follows)
     st.title("🛡️ The Academy Gate")
     license_key = st.text_input("Enter your License Key:", type="password")
     if st.button("Unlock the Study Hub"):
