@@ -129,22 +129,34 @@ with st.sidebar:
 
 # --- 5. THE EXAMINATION HALL (SIDEBAR) ---
 with st.sidebar:
-    st.divider() # Adds a nice line to separate the uploader from the exam
+    st.divider()
     st.header("📝 Examination Hall")
-    st.info("Ready to earn your honours? Click below to begin your formal assessment.")
     
     if st.button("📜 Start Formal Assessment"):
-        # We clear the previous chat so the exam is the focus
-        st.session_state.messages = [] 
+        # 1. Clear the old classroom chatter
+        st.session_state.messages = []
         
-        # We send a "Hidden Instruction" to Sir Ryan
+        # 2. Prepare the Headmaster's instructions
         exam_instruction = (
-            f"Sir Ryan, as the Headmaster, please conduct a formal oral examination for {st.session_state.student_name}. "
-            "Using the uploaded PDF, ask 3 challenging questions one at a time. "
-            "Wait for my answer after each question, provide feedback, and give me a final grade out of 100 at the end."
+            f"Sir Ryan, please begin a formal oral examination for {st.session_state.get('student_name', 'Scholar')}. "
+            "Using the uploaded PDF, ask me 3 challenging questions one at a time. "
+            "Wait for my answer after each, then provide a final grade out of 100."
         )
         
+        # 3. Add the instruction to the history
         st.session_state.messages.append({"role": "user", "content": exam_instruction})
+        
+        # 4. Trigger the 'Brain' immediately so the user doesn't have to wait
+        client = Groq(api_key=st.secrets["GROQ_API_KEY"])
+        completion = client.chat.completions.create(
+            model="llama-3.3-70b-versatile",
+            messages=[{"role": "system", "content": "You are Sir Ryan, the Headmaster."}] + st.session_state.messages,
+        )
+        
+        response = completion.choices[0].message.content
+        st.session_state.messages.append({"role": "assistant", "content": response})
+        
+        # 5. Refresh the page to show the new messages
         st.rerun()
     
     # Study Streak
