@@ -126,6 +126,26 @@ with st.sidebar:
     st.write("---")
     st.markdown(f"**Scholar:** {st.session_state.name}")
     st.markdown(f"**Level:** {st.session_state.english_level if st.session_state.english_level else 'Unassessed'}")
+
+# --- 5. THE EXAMINATION HALL (SIDEBAR) ---
+with st.sidebar:
+    st.divider() # Adds a nice line to separate the uploader from the exam
+    st.header("📝 Examination Hall")
+    st.info("Ready to earn your honours? Click below to begin your formal assessment.")
+    
+    if st.button("📜 Start Formal Assessment"):
+        # We clear the previous chat so the exam is the focus
+        st.session_state.messages = [] 
+        
+        # We send a "Hidden Instruction" to Sir Ryan
+        exam_instruction = (
+            f"Sir Ryan, as the Headmaster, please conduct a formal oral examination for {st.session_state.student_name}. "
+            "Using the uploaded PDF, ask 3 challenging questions one at a time. "
+            "Wait for my answer after each question, provide feedback, and give me a final grade out of 100 at the end."
+        )
+        
+        st.session_state.messages.append({"role": "user", "content": exam_instruction})
+        st.rerun()
     
     # Study Streak
     today = datetime.date.today()
