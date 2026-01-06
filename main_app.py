@@ -204,6 +204,36 @@ if st.session_state.english_level is None:
 st.markdown("<h1 style='text-align: center; color: #002366;'>🎓 Sir Ryan’s Academy</h1>", unsafe_allow_html=True)
 show_welcome_letter()
 
+# --- 7.5 VOICE RECORDING STUDIO ---
+st.write("---")
+col_audio1, col_audio2 = st.columns(2)
+
+with col_audio1:
+    st.subheader("🎤 Oral Examination")
+    st.write("Record your pronunciation or a message for Sir Ryan:")
+    
+    # The Recording Button
+    audio_recording = mic_recorder(
+        start_prompt="⏺️ Start Recording",
+        stop_prompt="⏹️ Stop & Save",
+        key="academy_mic"
+    )
+
+with col_audio2:
+    if audio_recording:
+        st.subheader("🎧 Review Recording")
+        st.audio(audio_recording['bytes'])
+        
+        if st.button("📤 Submit for Grading", key="submit_voice_btn"):
+            # Logic to add to gradebook
+            st.session_state.gradebook.append({
+                "Subject": st.session_state.current_subject,
+                "Student": st.session_state.student_name,
+                "Grade": "Oral Pending..."
+            })
+            st.success("Your voice note has been delivered to the Headmaster's study.")
+            st.balloons()
+
 # Quick Action Buttons
 st.write("### ⚡ Quick Actions")
 btn_col1, btn_col2, btn_col3 = st.columns(3)
