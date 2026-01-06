@@ -71,17 +71,22 @@ def show_welcome_letter():
 # --- 4. THE SECURITY GATE ---
 if not st.session_state.authenticated:
     st.title("🏛️ Welcome to Sir Ryan's Academy")
-    name_input = st.text_input("Please enter your name for the register:", placeholder="e.g. Master John")
-    password_input = st.text_input("Enter the Academy Password (License Key):", type="password")
     
-    if st.button("Enter the Hub"):
+    # Ask for name and key in the SAME section
+    name_input = st.text_input("Please enter your name for the register:", key="login_name")
+    password_input = st.text_input("Enter the Academy License Key:", type="password", key="login_pass")
+    
+    if st.button("Unlock the Study Hub"):
         if password_input == "Oxford2026" and name_input:
             st.session_state.authenticated = True
             st.session_state.student_name = name_input
-            st.rerun()
+            st.success("The gates are opening... Welcome, old sport!")
+            time.sleep(1) # A small pause for effect
+            st.rerun()  # THIS IS THE CRITICAL LINE
         else:
-            st.error("I'm afraid those credentials don't fit the lock, old sport.")
-    st.stop()
+            st.error("I'm afraid that key doesn't fit the lock, or you forgot your name.")
+    
+    st.stop() # This ensures NOTHING else (like the letter) shows until logged in
 
 # --- 5. THE ACADEMY SIDEBAR (All-In-One) ---
 with st.sidebar:
