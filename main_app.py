@@ -234,30 +234,6 @@ with st.sidebar:
 
     st.divider()
 
-    # --- EXAMINATION HALL ---
-    st.header("📝 Examination Hall")
-    if st.button("📜 Start Formal Assessment"):
-        if not uploaded_file:
-            st.warning("Please upload study materials before starting the exam!")
-        else:
-            st.session_state.messages = []
-            exam_instruction = (
-                f"Sir Ryan, please conduct a formal examination for {st.session_state.get('student_name', 'Scholar')} "
-                f"on the subject of {subject}. Use the uploaded PDF to ask 3 questions one by one. "
-                "Grade the student out of 100 at the end."
-            )
-            st.session_state.messages.append({"role": "user", "content": exam_instruction})
-            
-            # Immediate response logic
-            client = Groq(api_key=st.secrets["GROQ_API_KEY"])
-            completion = client.chat.completions.create(
-                model="llama-3.3-70b-versatile",
-                messages=[{"role": "system", "content": f"You are Sir Ryan, expert in {subject}."}] + st.session_state.messages,
-            )
-            response = completion.choices[0].message.content
-            st.session_state.messages.append({"role": "assistant", "content": response})
-            st.rerun()
-    
     # Study Streak
     today = datetime.date.today()
     if st.session_state.last_visit_date != today:
