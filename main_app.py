@@ -1,5 +1,5 @@
 import streamlit as st
-import ollama
+from groq import Groq
 import PyPDF2
 from streamlit_mic_recorder import mic_recorder
 import edge_tts
