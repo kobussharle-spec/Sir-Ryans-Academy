@@ -10,10 +10,19 @@ import datetime
 import random
 import requests
 import urllib.parse
-
 import streamlit as st
 from groq import Groq
 # ... other imports ...
+
+# --- 1. INITIALISE ACADEMY STATE ---
+if "authenticated" not in st.session_state:
+    st.session_state.authenticated = False
+
+if "student_name" not in st.session_state:
+    st.session_state.student_name = "Scholar"
+
+if "messages" not in st.session_state:
+    st.session_state.messages = []
 
 # --- 1. DEFINE FUNCTIONS AT THE TOP ---
 def show_welcome_letter():
