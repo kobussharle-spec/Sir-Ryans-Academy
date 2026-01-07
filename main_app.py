@@ -138,13 +138,17 @@ with st.sidebar:
 
 with st.sidebar:
     st.header("📖 Academy Handbook")
-    with st.expander("How to use this Academy"):
+    with st.expander("Instructional Protocol", expanded=True):
         st.write("""
-        1. **The Library:** Upload your '7-Day Interview Course' PDF. 
-        2. **Archiving:** Once you see 'File Received,' Sir Ryan has 'read' the text.
-        3. **Fresh Start:** If you refresh the page, the archive is cleared. You must re-upload the workbook to continue.
-        4. **Consultation:** Ask Sir Ryan anything! Use the chat box to practice your STAR Method answers.
-        5. **Biscuits:** Sir Ryan does his best work when you are polite and use proper British spelling!
+        1. **Session-Based Archives:** When uploading your PDF workbook, please note it is stored exclusively for the current session. Should you refresh the page or depart the Academy, the archive is cleared, and the document must be presented again.
+        
+        2. **Engine Performance:** The alacrity of Sir Ryan’s responses may vary depending upon the 'engine' power of your personal computer and your internet connection. We thank you for your patience during deep consultations.
+        
+        3. **Auditory Capabilities:** At this current juncture, Sir Ryan does not possess 'ears.' The Oral Examination facility is provided solely for your benefit, allowing you to monitor your own clarity and pace. We are presently scouting the globe for the finest digital ears to install.
+        
+        4. **Assessment Protocol:** It is highly recommended that you undertake the [**Free English Assessment Test**](https://www.your-link-here.com). This allows Sir Ryan to tailor his coaching to your specific level of mastery.
+        
+        5. **Continued Excellence:** The Academy Library is a living institution; additional resources and 'biscuits' shall be added consistently to aid your journey.
         """)
     
     # Gradebook
