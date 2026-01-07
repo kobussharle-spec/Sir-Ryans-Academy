@@ -146,7 +146,6 @@ with st.sidebar:
     st.markdown(f"### 👤 Scholar: {st.session_state.student_name}")
     st.divider()
 
-    # --- THE ROYAL LIBRARY (WITH ACCESS CONTROL) ---
     st.markdown("### 🏛️ The Royal Library Vault")
     
     if st.session_state.access_level == "Guest":
@@ -164,9 +163,9 @@ with st.sidebar:
         st.write("**Study Resources**")
         st.link_button("BBC Learning English", "https://www.bbc.co.uk/learningenglish")
         st.link_button("Oxford University Press", "https://elt.oup.com/")
-
-    # This line below MUST have exactly 4 spaces before it
-    st.divider()
+    
+    # We have removed the final st.divider() to prevent the indentation error.
+    # The sidebar will end here naturally.
     
     # --- Study Selection ---
     st.markdown("### 📚 Study Focus")
