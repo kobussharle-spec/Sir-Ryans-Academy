@@ -19,7 +19,7 @@ PASTE YOUR WORKBOOK TEXT HERE.
 (Day 1 to Day 7 content)
 """
 
-# --- 3. THE VOICE BOX (Defined early to prevent NameErrors) ---
+# --- 3. THE VOICE BOX ---
 def speak_text(text):
     try:
         clean = text.replace("**", "").replace("#", "").replace("_", "")
@@ -92,7 +92,7 @@ if st.session_state.english_level is None:
             st.rerun()
     st.stop()
 
-# --- 8. THE HEADMASTER'S WELCOME (Now speak_text is safe!) ---
+# --- 8. THE HEADMASTER'S WELCOME ---
 if not st.session_state.welcomed:
     welcome_msg = f"Welcome to the Academy, {st.session_state.student_name}! I see you are an {st.session_state.english_level}. I have your workbook ready. Grab a biscuit and let's begin."
     speak_text(welcome_msg)
@@ -144,7 +144,7 @@ with col_a:
                 st.info(f"Sir Ryan heard: '{transcription}'")
                 critique = client.chat.completions.create(
                     model="llama-3.1-8b-instant",
-                    messages=[{"role": "system", "content": f"You are Sir Ryan, a posh British tutor. Critique this based on: {st.session_state.pdf_text[:4000]}. Mention biscuits!"},
+                    messages=[{"role": "system", "content": f"You are Sir Ryan, a posh British tutor. Critique this based on your knowledge. Mention biscuits!"},
                               {"role": "user", "content": f"Critique this: {transcription}"}]
                 ).choices[0].message.content
                 st.markdown(critique)
@@ -166,4 +166,11 @@ if prompt := st.chat_input("Ask Sir Ryan..."):
     with st.chat_message("assistant"):
         client = Groq(api_key=st.secrets["GROQ_API_KEY"])
         resp = client.chat.completions.create(
-            model="llama-3.1
+            model="llama-3.1-8b-instant",
+            messages=[{"role": "system", "content": f"You are Sir Ryan. Use British-isms and mention biscuits!"}] + st.session_state.messages
+        ).choices[0].message.content
+        st.markdown(resp)
+        st.session_state.messages.append({"role": "assistant", "content": resp})
+        speak_text(resp)
+
+st.markdown("<br><hr><center><p style='color: #888888;'>© 2026 J Steenekamp | All Rights Reserved</p></center>", unsafe_allow_html=True)
