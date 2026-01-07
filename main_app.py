@@ -11,6 +11,30 @@ import requests
 import urllib.parse
 import pandas as pd
 
+# --- THE PERMANENT ACADEMY ARCHIVE ---
+# Paste your entire workbook text between the triple quotes below
+WORKBOOK_TEXT = """
+PASTE ALL YOUR PDF TEXT HERE...
+(Day 1: The STAR Method...)
+(Day 2: Professional Etiquette...)
+(Day 3: Handling Difficult Questions...)
+... AND SO ON.
+"""
+
+# --- THEN UPDATE YOUR INITIAL_STATES (Section 3) ---
+initial_states = {
+    "authenticated": False, 
+    "messages": [], 
+    "merits": 0, 
+    "gradebook": [], 
+    "student_name": "Scholar", 
+    "pdf_text": WORKBOOK_TEXT, # <--- THIS IS THE KEY CHANGE
+    "streak_count": 1, 
+    "last_visit": datetime.date.today(), 
+    "english_level": "Advanced",
+    "current_subject": "Interview Prep (STAR Method)"
+}
+
 # --- 1. THE FOUNDATION (MUST BE FIRST) ---
 st.set_page_config(page_title="Sir Ryan’s Academy", page_icon="🎓", layout="wide")
 
