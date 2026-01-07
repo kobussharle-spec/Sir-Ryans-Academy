@@ -13,9 +13,7 @@ import urllib.parse
 import pandas as pd
 from io import BytesIO
 
-import streamlit as st
-
-# --- THE EXECUTIVE THEME OVERRIDE ---
+# --- THE CORRECTED EXECUTIVE THEME OVERRIDE ---
 st.markdown("""
     <style>
     /* Main background and font */
@@ -30,8 +28,12 @@ st.markdown("""
         color: white;
     }
     
-    /* Sidebar text colour correction */
-    [data-testid="stSidebar"] .stText, [data-testid="stSidebar"] p, [data-testid="stSidebar"] h1, [data-testid="stSidebar"] h2 {
+    /* Ensure text in sidebar is white for legibility */
+    [data-testid="stSidebar"] .stText, 
+    [data-testid="stSidebar"] p, 
+    [data-testid="stSidebar"] h1, 
+    [data-testid="stSidebar"] h2,
+    [data-testid="stSidebar"] span {
         color: #ffffff !important;
     }
 
@@ -49,14 +51,8 @@ st.markdown("""
         border: 1px solid #d4af37;
         color: #002147;
     }
-
-    /* Chat Bubbles: Soft professional tones */
-    [data-testid="stChatMessage"] {
-        border-radius: 15px;
-        border: 1px solid #e0e0e0;
-    }
     </style>
-    """, unsafe_allow_name_with_html=True)
+    """, unsafe_allow_html=True)
 
 # --- 1. PAGE CONFIG & INITIALIZATION ---
 st.set_page_config(page_title="Sir Ryan’s Academy", page_icon="🎓")
