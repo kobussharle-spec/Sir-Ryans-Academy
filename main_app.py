@@ -307,12 +307,13 @@ with st.expander("🔍 Academy System Status"):
     else:
         st.error("❌ No document detected in memory. Please upload your PDF in the sidebar.")
 
-# --- 8. THE EFFICIENT DOCUMENT CHAT HUB ---
+# --- 8. THE EFFICIENT DOCUMENT CHAT HUB (REFINED) ---
 st.write("---")
 
-# 1. Grab the PDF text, but keep it under the limit (roughly 3000 words/12000 chars)
+# 1. Grab the PDF text and clip it more tightly to fit the 6000 token limit
 full_context = st.session_state.get("pdf_text", "No document uploaded yet.")
-short_context = full_context[:12000]  # This 'clips' the text so it doesn't crash Groq
+# We reduce 12000 to 8000 to stay safely under the TPM limit
+short_context = full_context[:8000] 
 
 if prompt := st.chat_input("Ask Sir Ryan about your course..."):
     st.session_state.messages.append({"role": "user", "content": prompt})
@@ -321,15 +322,12 @@ if prompt := st.chat_input("Ask Sir Ryan about your course..."):
         st.markdown(prompt)
 
     with st.chat_message("assistant"):
-        with st.spinner("Sir Ryan is skimming the relevant chapters..."):
+        with st.spinner("Sir Ryan is selecting the most relevant chapters..."):
             try:
                 client = Groq(api_key=st.secrets["GROQ_API_KEY"])
                 
-                system_instruction = f"""
-                You are Sir Ryan, a posh British tutor. 
-                Use the following course summary to help the student: {short_context}
-                Be witty and concise. Swapping "cookies" for "biscuits" is a must!
-                """
+                # Keep the system instruction lean and mean
+                system_instruction = f"You are Sir Ryan, a posh British tutor. Use this course text: {short_context}. Be concise."
                 
                 completion = client.chat.completions.create(
                     model="llama-3.1-8b-instant", 
@@ -342,8 +340,7 @@ if prompt := st.chat_input("Ask Sir Ryan about your course..."):
                 speak_text(response)
                 
             except Exception as e:
-                # If it still fails, we'll know exactly why
-                st.error(f"The Library is still a bit cluttered, Dean: {e}")
+                st.error(f"The Library is still a bit cluttered: {e}")
 # Footer
 st.write("---")
 if st.button("🎓 Graduate"):
