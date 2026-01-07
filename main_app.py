@@ -198,6 +198,24 @@ with st.sidebar:
     st.markdown("---")
     st.markdown("<p style='color: #C5A059; font-size: 0.8em;'>© 2026 J Steenekamp<br>Sir Ryan's Academy<br>All Rights Reserved</p>", unsafe_allow_html=True)
 
+# --- 🏆 THE ACADEMY TROPHY CABINET ---
+    st.divider()
+    st.markdown("### 🏆 Your Trophy Cabinet")
+    
+    # Initialize the cabinet if it doesn't exist
+    if "trophies" not in st.session_state:
+        st.session_state.trophies = []
+
+    if not st.session_state.trophies:
+        st.info("Your cabinet is empty. Complete a lesson to earn your first trophy!")
+    else:
+        # Display earned trophies in a nice row
+        cols = st.columns(len(st.session_state.trophies))
+        for i, trophy in enumerate(st.session_state.trophies):
+            with cols[i]:
+                st.markdown(f"## {trophy}")
+                st.caption("Well Done!")
+
 # --- 10. MAIN HUB ---
 st.markdown(f"""
 <div style="border: 3px solid #C5A059; padding: 20px; border-radius: 10px; background-color: white;">
