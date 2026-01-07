@@ -13,43 +13,35 @@ import urllib.parse
 import pandas as pd
 from io import BytesIO
 
-# --- THE CORRECTED EXECUTIVE THEME OVERRIDE ---
+# --- THE STABLE EXECUTIVE THEME ---
 st.markdown("""
     <style>
-    /* Main background and font */
+    /* 1. Main Background */
     .stApp {
-        background-color: #f4f7f6;
-        font-family: 'Times New Roman', serif;
+        background-color: #F4F7F6;
     }
     
-    /* Sidebar styling: Oxford Blue */
+    /* 2. Sidebar Color (Oxford Blue) */
     [data-testid="stSidebar"] {
-        background-color: #002147;
-        color: white;
+        background-color: #002147 !important;
     }
     
-    /* Ensure text in sidebar is white for legibility */
-    [data-testid="stSidebar"] .stText, 
-    [data-testid="stSidebar"] p, 
-    [data-testid="stSidebar"] h1, 
-    [data-testid="stSidebar"] h2,
-    [data-testid="stSidebar"] span {
-        color: #ffffff !important;
+    /* 3. Sidebar Text (White) */
+    [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] p {
+        color: white !important;
     }
 
-    /* Buttons: Gold & Professional */
-    div.stButton > button:first-child {
-        background-color: #c5a059;
-        color: white;
-        border-radius: 5px;
-        border: 1px solid #a38545;
-        font-weight: bold;
+    /* 4. Professional Buttons (Gold) */
+    .stButton>button {
+        background-color: #C5A059 !important;
+        color: white !important;
+        border-radius: 4px !important;
+        border: none !important;
     }
     
-    div.stButton > button:hover {
-        background-color: #d4af37;
-        border: 1px solid #d4af37;
-        color: #002147;
+    .stButton>button:hover {
+        background-color: #D4AF37 !important;
+        color: #002147 !important;
     }
     </style>
     """, unsafe_allow_html=True)
