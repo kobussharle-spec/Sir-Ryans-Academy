@@ -144,8 +144,7 @@ if not st.session_state.welcomed:
 # --- 9. SIDEBAR: THE ACADEMY REGISTRY ---
 with st.sidebar:
     st.markdown(f"### 👤 Scholar: {st.session_state.student_name}")
-    
-    st.divider() # <--- Check this line's alignment!
+    st.divider()
 
     # --- THE ROYAL LIBRARY (WITH ACCESS CONTROL) ---
     st.markdown("### 🏛️ The Royal Library Vault")
@@ -166,7 +165,8 @@ with st.sidebar:
         st.link_button("BBC Learning English", "https://www.bbc.co.uk/learningenglish")
         st.link_button("Oxford University Press", "https://elt.oup.com/")
 
-    st.divider() # <--- And this one!
+    # Make sure this final divider is exactly under the "if" and "else" keywords!
+    st.divider()
     
     # --- Study Selection ---
     st.markdown("### 📚 Study Focus")
