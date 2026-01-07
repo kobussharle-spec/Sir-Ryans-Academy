@@ -118,15 +118,13 @@ with st.sidebar:
     st.image("https://img.icons8.com/color/96/graduation-cap.png", width=80)
     st.title("🏫 Academy Registry")
     
-    # --- Profile Section ---
     st.markdown("### 👤 Scholar Profile")
     st.write(f"**Name:** {st.session_state.student_name}")
     st.write(f"**Status:** {st.session_state.english_level}")
-    st.write(f"**Merits Earned:** ⭐ {st.session_state.merits}")
+    st.write(f"**Merits:** ⭐ {st.session_state.merits}")
     
     st.divider()
     
-    # --- Study Selection ---
     st.markdown("### 📚 Study Focus")
     st.session_state.current_subject = st.selectbox("Select Focus Area:", [
         "General English",
@@ -147,21 +145,26 @@ with st.sidebar:
 
     st.divider()
 
-    # --- Tools ---
-    with st.expander("📕 Academy Dictionary"):
-        word = st.text_input("Look up a word:").strip()
-        if word:
-            try:
-                res = requests.get(f"https://api.dictionaryapi.dev/api/v2/entries/en/{word}")
-                if res.status_code == 200:
-                    data = res.json()
-                    st.write(f"**Definition:** {data[0]['meanings'][0]['definitions'][0]['definition']}")
-                    if 'example' in data[0]['meanings'][0]['definitions'][0]:
-                        st.write(f"*Example:* {data[0]['meanings'][0]['definitions'][0]['example']}")
-            except:
-                st.error("Dictionary is currently in the archives.")
+    # --- THE ROYAL LIBRARY (New Links) ---
+    with st.expander("🏛️ The Royal Library Vault"):
+        st.markdown("#### **Dictionaries & Phonetics**")
+        st.link_button("Oxford English Dictionary", "https://www.oed.com/?tl=true")
+        st.link_button("Cambridge Dictionary", "https://dictionary.cambridge.org/dictionary/english/explanatory")
+        st.link_button("Phonetic Spelling Tool", "https://phonetic-spelling.com/")
+        
+        st.markdown("#### **Exam & Level Testing**")
+        st.link_button("English Level Test", "https://engxam.com/english-level-test/")
+        st.link_button("Cambridge Learner Support", "https://www.cambridgeenglish.org/supporting-learners/?level=basic")
+        st.link_button("TEFL Certification Info", "https://teacherrecord.com/tefl-certificate")
+        
+        st.markdown("#### **Study & Grammar Resources**")
+        st.link_button("BBC Learning English", "https://www.bbc.co.uk/learningenglish/english/grammar")
+        st.link_button("Oxford University Press Resources", "https://elt.oup.com/learning_resources/")
+        
+        st.markdown("#### **Interactive & Games**")
+        st.link_button("Baamboozle Educational Games", "https://www.baamboozle.com/")
+        st.link_button("ABCya Learning Hub", "https://www.abcya.com/")
 
-    # --- Support & Exit ---
     st.divider()
     st.link_button("💬 WhatsApp Dean", "https://wa.me/27833976517")
     
@@ -169,12 +172,8 @@ with st.sidebar:
         st.session_state.clear()
         st.rerun()
 
-    # --- Permanent Signature ---
     st.markdown("---")
     st.markdown("<p style='color: #C5A059; font-size: 0.8em;'>© 2026 J Steenekamp<br>Sir Ryan's Executive Academy<br>All Rights Reserved</p>", unsafe_allow_html=True)
-
-# --- 10. MAIN HUB ---
-st.markdown(f"<h1 style='color: #002147;'>🎓 Sir Ryan’s Executive Academy</h1>", unsafe_allow_html=True)
 
 # --- 10. MAIN HUB ---
 st.markdown(f"""
