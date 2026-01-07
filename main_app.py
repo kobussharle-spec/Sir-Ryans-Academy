@@ -15,14 +15,41 @@ from io import BytesIO
 # --- 1. PAGE CONFIG (MUST BE FIRST) ---
 st.set_page_config(page_title="Sir Ryan’s Academy", page_icon="🎓")
 
-# --- 2. EXECUTIVE THEME ---
+# --- 2. THEME (Oxford Blue & Gold with High Visibility) ---
 st.markdown("""
     <style>
+    /* Main Background */
     .stApp { background-color: #F4F7F6; }
-    [data-testid="stSidebar"] { background-color: #002147 !important; }
-    [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] p { color: white !important; }
-    .stButton>button { background-color: #C5A059 !important; color: white !important; border-radius: 4px !important; }
-    .stButton>button:hover { background-color: #D4AF37 !important; color: #002147 !important; }
+    
+    /* Sidebar Background */
+    [data-testid="stSidebar"] { 
+        background-color: #002147 !important; 
+    }
+    
+    /* FORCE WHITE TEXT IN SIDEBAR */
+    /* This targets headers, normal text, and labels */
+    [data-testid="stSidebar"] h1, 
+    [data-testid="stSidebar"] h2, 
+    [data-testid="stSidebar"] h3, 
+    [data-testid="stSidebar"] p, 
+    [data-testid="stSidebar"] label, 
+    [data-testid="stSidebar"] .stMarkdown,
+    [data-testid="stSidebar"] .stText {
+        color: #FFFFFF !important;
+    }
+
+    /* Professional Buttons (Gold) */
+    .stButton>button { 
+        background-color: #C5A059 !important; 
+        color: #002147 !important; /* Navy text on Gold button is easier to read */
+        font-weight: bold !important;
+        border-radius: 4px !important; 
+    }
+    
+    /* File Uploader Text Fix */
+    [data-testid="stSidebar"] .stFileUploader section {
+        color: white !important;
+    }
     </style>
     """, unsafe_allow_html=True)
 
