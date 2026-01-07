@@ -139,10 +139,12 @@ with st.sidebar:
 # --- 10. MAIN HUB ---
 st.markdown(f"<h1 style='color: #002147;'>🎓 Sir Ryan’s Executive Academy</h1>", unsafe_allow_html=True)
 
+# --- 10. MAIN HUB ---
 st.markdown(f"""
 <div style="border: 3px solid #C5A059; padding: 20px; border-radius: 10px; background-color: white;">
     <h3 style="color: #002147;">📜 Headmaster's Study</h3>
-    <p>Good day, <b>{st.session_state.student_name}</b>. We are focusing on <b>{st.session_state.current_subject}</b> today.</p>
+    <p>Good day, <b>{st.session_state.student_name}</b>. The Academy Library is fully at your disposal.</p>
+    <p>We are currently prepared for <b>{st.session_state.current_subject}</b>. What shall we master today?</p>
 </div>
 """, unsafe_allow_html=True)
 
