@@ -307,43 +307,30 @@ with st.expander("🔍 Academy System Status"):
     else:
         st.error("❌ No document detected in memory. Please upload your PDF in the sidebar.")
 
-# --- 8. THE VOICE-ENABLED CHAT HUB ---
-from streamlit_mic_recorder import mic_recorder
-
+# --- 8. THE REFINED ACADEMY CHAT HUB ---
 st.write("---")
 
-# 1. Context Clipping (Staying under 6000 tokens)
+# 1. Grab and clip the PDF text (ensuring we stay under the 6000 token limit)
 full_context = st.session_state.get("pdf_text", "No document uploaded yet.")
 short_context = full_context[:8000] 
 
-# 2. THE MICROPHONE INTERFACE
-st.write("🎙️ **Practice Speaking your STAR Answer:**")
-audio_data = mic_recorder(
-    start_prompt="Click to Start Speaking",
-    stop_prompt="Click to Stop",
-    key='recorder'
-)
-
-# If audio is recorded, we show it here
-if audio_data:
-    # Note: Transcription usually requires an API call like Whisper.
-    # For now, this acts as a 'Voice Check'. 
-    # To truly 'Transcribe', we'd add one more line for Groq Whisper.
-    st.audio(audio_data['bytes'])
-    st.info("Listen back to your clarity and pace. Does it sound like a colleague? [cite: 68]")
-
-# 3. CHAT INPUT
-if prompt := st.chat_input("Type or paste your answer for Sir Ryan..."):
+if prompt := st.chat_input("Ask Sir Ryan about your course..."):
     st.session_state.messages.append({"role": "user", "content": prompt})
     
     with st.chat_message("user"):
         st.markdown(prompt)
 
     with st.chat_message("assistant"):
-        with st.spinner("Sir Ryan is listening intently..."):
+        with st.spinner("Sir Ryan is reviewing your workbook..."):
             try:
                 client = Groq(api_key=st.secrets["GROQ_API_KEY"])
-                system_instruction = f"You are Sir Ryan, a posh British tutor. Use this course: {short_context}. Be concise."
+                
+                system_instruction = f"""
+                You are Sir Ryan, a posh British tutor. 
+                Use the following course text to help the student: {short_context}
+                If they ask about the STAR method, explain it clearly.
+                Be witty and swap "cookies" for "biscuits".
+                """
                 
                 completion = client.chat.completions.create(
                     model="llama-3.1-8b-instant", 
