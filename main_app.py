@@ -285,26 +285,29 @@ if st.session_state.homework_task:
             st.balloons()
             st.rerun()
 
-# --- 8. CHAT HUB ---
-for msg in st.session_state.messages:
-    with st.chat_message(msg["role"]):
-        st.markdown(msg["content"])
-
+# --- 8. CHAT HUB (SPEED & FIREWORKS VERSION) ---
 if prompt := st.chat_input("Ask Sir Ryan anything..."):
     st.session_state.messages.append({"role": "user", "content": prompt})
     with st.chat_message("user"):
         st.markdown(prompt)
 
     with st.chat_message("assistant"):
-        client = Groq(api_key=st.secrets["GROQ_API_KEY"])
-        completion = client.chat.completions.create(
-            model="llama-3.3-70b-versatile",
-            messages=[{"role": "system", "content": f"You are Sir Ryan, a posh British tutor. The subject is {subject}."}] + st.session_state.messages,
-        )
-        response = completion.choices[0].message.content
-        st.markdown(response)
-        st.session_state.messages.append({"role": "assistant", "content": response})
-        speak_text(response)
+        # We use the spinner here to get the 'Fireworks/Sparkle' look back
+        with st.spinner("Sir Ryan is consulting the archives..."):
+            client = Groq(api_key=st.secrets["GROQ_API_KEY"])
+            
+            # SWITCHED TO 8B MODEL FOR LIGHTNING SPEED
+            completion = client.chat.completions.create(
+                model="llama3-8b-8192", 
+                messages=[{"role": "system", "content": "You are Sir Ryan, a posh British tutor. Be concise but polite."}] + st.session_state.messages,
+            )
+            
+            response = completion.choices[0].message.content
+            st.markdown(response)
+            st.session_state.messages.append({"role": "assistant", "content": response})
+            
+            # Speak after the text is fully visible
+            speak_text(response)
 
 # Footer
 st.write("---")
