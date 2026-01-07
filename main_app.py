@@ -71,12 +71,12 @@ def speak_text(text):
         st.markdown(audio_html, unsafe_allow_html=True)
     except: pass
 
-# --- 6. THE SIDEBAR (All Subjects & Resources) ---
+# --- 6. THE SIDEBAR (All Subjects & New Tools) ---
 with st.sidebar:
     st.title("🏫 Academy Registry")
     
+    # 6.1 SUBJECT SELECTION
     st.header("📚 Subject Registry")
-    # THE FULL LIST YOU REQUESTED
     subject_list = [
         "English: Tenses", "English: Grammar", "English: Pronunciation",
         "English: Vocabulary", "English: Conversation", 
@@ -86,6 +86,7 @@ with st.sidebar:
     ]
     st.session_state.current_subject = st.selectbox("Select Study Focus:", subject_list)
 
+    # 6.2 ACADEMY LIBRARY (PDF Uploader)
     st.header("📜 Academy Library")
     uploaded_file = st.file_uploader("Upload Workbook (PDF)", type="pdf")
     if uploaded_file:
@@ -93,9 +94,34 @@ with st.sidebar:
         st.session_state.pdf_text = "".join([p.extract_text() for p in reader.pages])
         st.success("Archives Updated!")
 
-    with st.expander("📖 How to use the Academy"):
-        st.write("1. Upload your course PDF\n2. Select your focus\n3. Talk to Sir Ryan")
+    # 6.3 THE USER MANUAL (NEW)
+    with st.expander("📖 Academy User Manual", expanded=False):
+        st.markdown("""
+        **Welcome to the 2026 Edition!**
+        * **Step 1:** Upload your course PDF in the 'Library' above.
+        * **Step 2:** Select your subject (e.g., *Interview Prep*).
+        * **Step 3:** Use the **Oral Exam** to record your STAR answers.
+        * **Step 4:** Ask Sir Ryan to 'Quiz me' or 'Check my grammar'.
+        * **The Golden Rule:** Always be polite, and remember to have a **biscuit** during breaks!
+        """)
 
+    # 6.4 THE FREE DICTIONARY (NEW)
+    with st.expander("📕 Academy Dictionary", expanded=False):
+        word = st.text_input("Look up a word:", placeholder="e.g. Quintessential").strip()
+        if word:
+            try:
+                # Using a free, reliable Dictionary API
+                res = requests.get(f"https://api.dictionaryapi.dev/api/v2/entries/en/{word}")
+                if res.status_code == 200:
+                    data = res.json()[0]
+                    meaning = data['meanings'][0]['definitions'][0]['definition']
+                    st.write(f"**Definition:** {meaning}")
+                else:
+                    st.warning("Word not found in the archives, old sport.")
+            except:
+                st.error("The Dictionary is currently being dusted.")
+
+    # 6.5 EXTRAS
     with st.expander("🏛️ Resources & Idioms"):
         st.write("British Idioms: 'Chuffed', 'Spot of bother'")
         try:
