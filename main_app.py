@@ -156,7 +156,7 @@ with st.sidebar:
         st.button("📖 Oxford Dictionary (Locked)", disabled=True)
         st.button("📻 BBC Learning (Locked)", disabled=True)
     else:
-        st.success("🔓 Full Access Granted")
+        st.success("👑 Full Access Granted")
         st.write("**Dictionaries & Phonetics**")
         st.link_button("Oxford English Dictionary", "https://www.oed.com/")
         st.link_button("Cambridge Dictionary", "https://dictionary.cambridge.org/")
@@ -165,7 +165,7 @@ with st.sidebar:
         st.link_button("BBC Learning English", "https://www.bbc.co.uk/learningenglish")
         st.link_button("Oxford University Press", "https://elt.oup.com/")
 
-    # Make sure this final divider is exactly under the "if" and "else" keywords!
+    # This line below MUST have exactly 4 spaces before it
     st.divider()
     
     # --- Study Selection ---
