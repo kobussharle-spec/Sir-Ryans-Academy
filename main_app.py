@@ -122,44 +122,48 @@ st.markdown(f"""
 
 with col_a:
     st.subheader("🎤 Oral Examination")
+    # This captures the audio directly from your microphone
     rec = mic_recorder(start_prompt="⏺️ Record Practice", stop_prompt="⏹️ Save & Listen")
     
     if rec: 
+        # 1. Play the audio back to the student immediately
         st.audio(rec['bytes'])
+        
+        # 2. Use the 'bytes' from the recorder directly for the Headmaster
         if st.button("Submit for Headmaster's Critique"):
             with st.spinner("Sir Ryan is listening closely..."):
                 try:
-                    # 1. Save the audio temporarily
-                    with open("student_response.wav", "wb") as f:
-                        f.write(rec['bytes'])
-                    
-                    # 2. Transcribe using Groq's Whisper "Ears"
                     client = Groq(api_key=st.secrets["GROQ_API_KEY"])
-                    with open("student_response.wav", "rb") as audio_file:
-                        transcription = client.audio.transcriptions.create(
-                            file=("student_response.wav", audio_file.read()),
-                            model="whisper-large-v3",
-                            response_format="text"
-                        )
                     
-                    # 3. Sir Ryan provides his feedback
+                    # We send the bytes directly to Sir Ryan's "Ears" (Whisper)
+                    # We name it 'audio.wav' so the system knows the format
+                    transcription = client.audio.transcriptions.create(
+                        file=("audio.wav", rec['bytes']),
+                        model="whisper-large-v3",
+                        response_format="text"
+                    )
+                    
+                    # Show the student what was heard
                     st.info(f"Sir Ryan heard: '{transcription}'")
                     
+                    # Sir Ryan evaluates the text against your Workbook
                     critique = client.chat.completions.create(
                         model="llama-3.1-8b-instant",
                         messages=[
-                            {"role": "system", "content": f"You are Sir Ryan. Critically evaluate this student's spoken answer based on the STAR method and your workbook knowledge: {st.session_state.pdf_text[:4000]}. Be posh, encouraging, and mention biscuits!"},
-                            {"role": "user", "content": f"I said: {transcription}. How was my content and clarity?"}
+                            {"role": "system", "content": f"You are Sir Ryan. Evaluate this transcript based on your STAR method workbook: {st.session_state.pdf_text[:4000]}. Be posh and mention biscuits!"},
+                            {"role": "user", "content": f"Critique my answer: {transcription}"}
                         ]
                     ).choices[0].message.content
                     
                     st.markdown(critique)
-                    speak_text(critique) # Sir Ryan speaks his feedback!
-                    st.session_state.gradebook.append({"Subject": "Oral Exam", "Grade": "Graded"})
-                    st.success("Examination recorded in your Gradebook!")
+                    speak_text(critique) # Sir Ryan speaks his feedback
+                    st.session_state.gradebook.append({"Subject": "Oral", "Grade": "Graded"})
+                    
                 except Exception as e:
                     st.error(f"A spot of bother with the ears: {e}")
-
+    else:
+        st.caption("Click 'Record' to begin your examination, old sport.")
+        
 st.divider()
 for msg in st.session_state.messages:
     with st.chat_message(msg["role"]): st.markdown(msg["content"])
