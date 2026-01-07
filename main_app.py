@@ -75,20 +75,35 @@ if not st.session_state.authenticated:
         else: st.error("Access Denied, old sport.")
     st.stop()
 
-# --- 7. THE PLACEMENT ASSESSMENT ---
+# --- 7. THE PLACEMENT ASSESSMENT (General English Edition) ---
 if st.session_state.english_level is None:
     st.title("📜 Academy Placement Evaluation")
-    st.info(f"Welcome, {st.session_state.student_name}. Please complete your entry assessment.")
+    st.info(f"Welcome, {st.session_state.student_name}. Please complete this brief English evaluation to help Sir Ryan tailor your experience.")
+    
     with st.form("assessment"):
-        q1 = st.radio("1. Which is correct for a formal email?", ["I'll talk to ya later.", "I look forward to hearing from you.", "Give me a shout soon."])
-        q2 = st.radio("2. In STAR, what does 'S' stand for?", ["Summary", "Situation", "Solution"])
-        q3 = st.radio("3. Professional word for 'Job'?", ["Gig", "Occupation", "Work-thingy"])
+        st.write("### Part 1: Formal Correspondence")
+        q1 = st.radio("1. Which of these is the most professional way to start an email to someone you've never met?", 
+                    ["Hey there!", "To whom it may concern,", "Hiya!"])
+        
+        st.write("### Part 2: Grammar & Tense")
+        q2 = st.radio("2. Choose the correct sentence for a past achievement:", 
+                    ["I have lead the team last year.", "I led the team last year.", "I leaded the team last year."])
+        
+        st.write("### Part 3: Executive Vocabulary")
+        q3 = st.radio("3. If a meeting is 'adjourned', what has happened?", 
+                    ["It has started.", "It has been cancelled.", "It has ended for the time being."])
+        
         if st.form_submit_button("Submit for Grading"):
-            score = (q1 == "I look forward to hearing from you.") + (q2 == "Situation") + (q3 == "Occupation")
+            # Grading Logic
+            score = 0
+            if q1 == "To whom it may concern,": score += 1
+            if q2 == "I led the team last year.": score += 1
+            if q3 == "It has ended for the time being.": score += 1
+            
             levels = {3: "Advanced Executive", 2: "Intermediate Scholar", 1: "Beginner Professional", 0: "Beginner Professional"}
             st.session_state.english_level = levels[score]
-            st.success(f"Grading Complete! Placement: {st.session_state.english_level}")
-            time.sleep(1)
+            st.success(f"Grading Complete! Sir Ryan has placed you in the: {st.session_state.english_level} tier.")
+            time.sleep(2)
             st.rerun()
     st.stop()
 
