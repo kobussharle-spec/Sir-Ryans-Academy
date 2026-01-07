@@ -167,17 +167,27 @@ with st.sidebar:
         st.link_button("👑 Unlock Full Academy Access", "https://www.etsy.com/shop/YourShopName")
         st.button("📖 Oxford Dictionary (Locked)", disabled=True)
         st.button("📻 BBC Learning (Locked)", disabled=True)
-    else:
+else:
+        # What the FULL MEMBER sees
         st.success("👑 Full Access Granted")
-        st.write("**Dictionaries & Phonetics**")
-        st.link_button("Oxford English Dictionary", "https://www.oed.com/")
-        st.link_button("Cambridge Dictionary", "https://dictionary.cambridge.org/")
         
-        st.write("**Study Resources**")
-        st.link_button("BBC Learning English", "https://www.bbc.co.uk/learningenglish")
-        st.link_button("Oxford University Press", "https://elt.oup.com/")
-
-    st.divider()
+        st.write("**Dictionaries & Phonetics**")
+        st.link_button("Oxford English Dictionary", "https://www.oed.com/?tl=true")
+        st.link_button("Cambridge Explanatory Dictionary", "https://dictionary.cambridge.org/dictionary/english/explanatory")
+        st.link_button("Phonetic Spelling Tool", "https://phonetic-spelling.com/")
+        
+        st.write("**Grammar & Level Testing**")
+        st.link_button("BBC Grammar Guide", "https://www.bbc.co.uk/learningenglish/english/grammar")
+        st.link_button("English Level Test (EngExam)", "https://engxam.com/english-level-test/")
+        st.link_button("Cambridge English Support", "https://www.cambridgeenglish.org/supporting-learners/?level=basic")
+        
+        st.write("**Study Resources & Games**")
+        st.link_button("Oxford University Press (ELT)", "https://elt.oup.com/learning_resources/")
+        st.link_button("Baamboozle Educational Games", "https://www.baamboozle.com/")
+        st.link_button("ABCya! Learning Fun", "https://www.abcya.com/")
+        
+        st.write("**Professional Certification**")
+        st.link_button("TEFL Certificate (Teacher Record)", "https://teacherrecord.com/tefl-certificate")
     
     # --- Support & Exit ---
     st.link_button("💬 WhatsApp Dean", "https://wa.me/27833976517")
