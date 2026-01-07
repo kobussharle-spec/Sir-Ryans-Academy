@@ -84,17 +84,23 @@ if "authenticated" not in st.session_state:
 if not st.session_state.authenticated:
     st.title("🏛️ Welcome to Sir Ryan's Executive Academy")
     name_input = st.text_input("Name for the Register:")
-    license_key = st.text_input("License Key:", type="password")
+    license_key = st.text_input("License Key (Enter 'GUEST' for a tour):", type="password")
     
     if st.button("Unlock the Study Hub"):
-        if license_key.strip().lower() == "oxford2026" and name_input:
-            st.session_state.authenticated = True
-            st.session_state.student_name = name_input
-            st.rerun()
-        else:
-            st.error("Access Denied. Please check your credentials.")
-    
-    # CRITICAL: This stops the app here so the Assessment doesn't show!
+        key = license_key.strip().lower()
+        if name_input:
+            if key == "oxford2026":
+                st.session_state.authenticated = True
+                st.session_state.access_level = "Full"
+                st.session_state.student_name = name_input
+                st.rerun()
+            elif key == "guest":
+                st.session_state.authenticated = True
+                st.session_state.access_level = "Guest"
+                st.session_state.student_name = f"{name_input} (Guest)"
+                st.rerun()
+            else:
+                st.error("Access Denied. Please check your License Key.")
     st.stop()
 
 # --- 7. THE PLACEMENT ASSESSMENT ---
@@ -149,25 +155,31 @@ with st.sidebar:
 
     st.divider()
 
-    # --- THE ROYAL LIBRARY (DIRECT LINKS - NO HIDING!) ---
+   st.divider()
+
+    # --- THE ROYAL LIBRARY (WITH ACCESS CONTROL) ---
     st.markdown("### 🏛️ The Royal Library Vault")
     
-    st.write("**Dictionaries & Phonetics**")
-    st.link_button("Oxford English Dictionary", "https://www.oed.com/?tl=true")
-    st.link_button("Cambridge Dictionary", "https://dictionary.cambridge.org/dictionary/english/explanatory")
-    st.link_button("Phonetic Spelling Tool", "https://phonetic-spelling.com/")
+    if st.session_state.access_level == "Guest":
+        # What the GUEST sees
+        st.warning("🔒 Library Restricted")
+        st.write("The Royal Vault is reserved for Enrolled Scholars.")
+        st.link_button("👑 Unlock Full Academy Access", "https://www.etsy.com/shop/YourShopName")
+        
+        # We show them what they are missing (but these buttons do nothing)
+        st.button("📖 Oxford Dictionary (Locked)", disabled=True)
+        st.button("📻 BBC Learning (Locked)", disabled=True)
     
-    st.write("**Exam & Level Testing**")
-    st.link_button("English Level Test", "https://engxam.com/english-level-test/")
-    st.link_button("TEFL Certification Info", "https://teacherrecord.com/tefl-certificate")
-    
-    st.write("**Study Resources**")
-    st.link_button("BBC Learning English", "https://www.bbc.co.uk/learningenglish/english/grammar")
-    st.link_button("Oxford University Press", "https://elt.oup.com/learning_resources/")
-    
-    st.write("**Interactive Games**")
-    st.link_button("Baamboozle Games", "https://www.baamboozle.com/")
-    st.link_button("ABCya Hub", "https://www.abcya.com/")
+    else:
+        # What the FULL MEMBER sees (Your original links)
+        st.success("🔓 Full Access Granted")
+        st.write("**Dictionaries & Phonetics**")
+        st.link_button("Oxford English Dictionary", "https://www.oed.com/")
+        st.link_button("Cambridge Dictionary", "https://dictionary.cambridge.org/")
+        
+        st.write("**Study Resources**")
+        st.link_button("BBC Learning English", "https://www.bbc.co.uk/learningenglish")
+        st.link_button("Oxford University Press", "https://elt.oup.com/")
 
     st.divider()
     
