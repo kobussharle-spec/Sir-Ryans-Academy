@@ -1,84 +1,59 @@
 import streamlit as st
 from groq import Groq
 import PyPDF2
+import pypdf # Ensure you have this for the reader
 from streamlit_mic_recorder import mic_recorder
 import edge_tts
 import asyncio
 import base64
 import time
 import datetime
-import random
 import requests
 import urllib.parse
 import pandas as pd
 from io import BytesIO
 
-# --- THE STABLE EXECUTIVE THEME ---
+# --- 1. THE FOUNDATION (MUST BE FIRST) ---
+st.set_page_config(page_title="Sir Ryan’s Academy", page_icon="🎓")
+
+# --- 2. THE THEME ---
 st.markdown("""
     <style>
-    /* 1. Main Background */
-    .stApp {
-        background-color: #F4F7F6;
-    }
-    
-    /* 2. Sidebar Color (Oxford Blue) */
-    [data-testid="stSidebar"] {
-        background-color: #002147 !important;
-    }
-    
-    /* 3. Sidebar Text (White) */
-    [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] p {
-        color: white !important;
-    }
-
-    /* 4. Professional Buttons (Gold) */
-    .stButton>button {
-        background-color: #C5A059 !important;
-        color: white !important;
-        border-radius: 4px !important;
-        border: none !important;
-    }
-    
-    .stButton>button:hover {
-        background-color: #D4AF37 !important;
-        color: #002147 !important;
-    }
+    .stApp { background-color: #F4F7F6; }
+    [data-testid="stSidebar"] { background-color: #002147 !important; }
+    [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] p { color: white !important; }
+    .stButton>button { background-color: #C5A059 !important; color: white !important; }
     </style>
     """, unsafe_allow_html=True)
 
-# --- THE ACADEMY GATEKEEPER ---
-def check_password():
-    """Returns True if the user had the correct password."""
+# --- 3. STATE INITIALIZATION ---
+if "authenticated" not in st.session_state:
+    st.session_state.authenticated = False
+if "messages" not in st.session_state:
+    st.session_state.messages = []
+if "gradebook" not in st.session_state:
+    st.session_state.gradebook = []
+# (Add any other essential keys here)
 
-    def password_entered():
-        """Checks whether a password entered by the user is correct."""
-        if st.session_state["password"] == "STAR2026": # You can change this 'key' whenever you like!
-            st.session_state["password_correct"] = True
-            del st.session_state["password"]  # Don't store the password
+# --- 4. THE ONLY GATE ---
+if not st.session_state.authenticated:
+    st.title("🏛️ Welcome to Sir Ryan's Academy")
+    
+    name_input = st.text_input("Please enter your name for the Academy Register:")
+    license_key = st.text_input("Enter your License Key:", type="password")
+    
+    if st.button("Unlock the Study Hub"):
+        if license_key == "Oxford2026" and name_input:
+            st.session_state.authenticated = True
+            st.session_state.student_name = name_input
+            st.success("Access Granted. Welcome, old sport!")
+            st.rerun()
         else:
-            st.session_state["password_correct"] = False
+            st.error("I'm afraid that key doesn't fit the lock.")
+    st.stop() # THE APP STOPS HERE UNTIL AUTHENTICATED
 
-    if "password_correct" not in st.session_state:
-        # First run, show input for password.
-        st.title("🏛️ Sir Ryan's Executive Academy")
-        st.text_input(
-            "Please enter the access code provided with your Etsy purchase:", 
-            type="password", 
-            on_change=password_entered, 
-            key="password"
-        )
-        if "password_correct" in st.session_state and not st.session_state["password_correct"]:
-            st.error("😕 Access denied. Please check your credentials and try again.")
-        return False
-    else:
-        return st.session_state["password_correct"]
-
-# --- APP EXECUTION ---
-if not check_password():
-    st.stop()  # Do not run the rest of the app if password isn't correct
-
-# All your existing Academy code (Librarian, Sir Ryan, etc.) goes below this line!
-
+# --- 5. THE REST OF THE ACADEMY ---
+# Put all your functions (speak_text, etc.) and sidebar code below here!
 # --- 1. PAGE CONFIG & INITIALIZATION ---
 st.set_page_config(page_title="Sir Ryan’s Academy", page_icon="🎓")
 
