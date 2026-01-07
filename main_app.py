@@ -68,12 +68,11 @@ if not st.session_state.authenticated:
     name_input = st.text_input("Name for the Register:")
     license_key = st.text_input("License Key:", type="password")
     if st.button("Unlock the Study Hub"):
+        # CHECK THIS LINE BELOW CAREFULLY:
         if license_key == "Oxford2026" and name_input:
             st.session_state.authenticated = True
             st.session_state.student_name = name_input
             st.rerun()
-        else: st.error("Access Denied, old sport.")
-    st.stop()
 
 # --- 7. THE PLACEMENT ASSESSMENT (General English Edition) ---
 if st.session_state.english_level is None:
