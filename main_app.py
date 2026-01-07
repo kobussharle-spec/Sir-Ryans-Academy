@@ -285,6 +285,15 @@ if st.session_state.homework_task:
             st.balloons()
             st.rerun()
 
+# --- ACADEMY DIAGNOSTIC PANEL ---
+with st.expander("🔍 Academy System Status"):
+    if "pdf_text" in st.session_state and st.session_state.pdf_text:
+        st.success(f"✅ Document Loaded: {len(st.session_state.pdf_text)} characters detected.")
+        if st.checkbox("Show extracted text preview"):
+            st.write(st.session_state.pdf_text[:500] + "...")
+    else:
+        st.error("❌ No document detected in memory. Please upload your PDF in the sidebar.")
+
 # --- 8. THE DOCUMENT-AWARE CHAT HUB ---
 st.write("---")
 
