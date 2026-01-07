@@ -84,23 +84,33 @@ if "authenticated" not in st.session_state:
 if not st.session_state.authenticated:
     st.title("🏛️ Welcome to Sir Ryan's Executive Academy")
     name_input = st.text_input("Name for the Register:")
-    license_key = st.text_input("License Key (Enter 'GUEST' for a tour):", type="password")
+    license_key = st.text_input("License Key:", type="password")
     
     if st.button("Unlock the Study Hub"):
-        key = license_key.strip().lower()
+        # We clean the input to ignore spaces and capital letters
+        clean_key = license_key.strip().lower()
+        
         if name_input:
-            if key == "oxford2026":
+            # 1. Check for Full Access
+            if clean_key == "oxford2026":
                 st.session_state.authenticated = True
                 st.session_state.access_level = "Full"
                 st.session_state.student_name = name_input
                 st.rerun()
-            elif key == "guest":
+            
+            # 2. Check for Guest Access
+            elif clean_key == "guest":
                 st.session_state.authenticated = True
                 st.session_state.access_level = "Guest"
                 st.session_state.student_name = f"{name_input} (Guest)"
                 st.rerun()
+                
+            # 3. If neither matches
             else:
                 st.error("Access Denied. Please check your License Key.")
+        else:
+            st.warning("Please enter your name in the Register, old sport.")
+            
     st.stop()
 
 # --- 7. THE PLACEMENT ASSESSMENT ---
