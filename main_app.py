@@ -33,39 +33,39 @@ def speak_text(text):
     except:
         pass
 
-# --- CUSTOM STYLING FOR SIDEBAR BUTTONS ---
+# --- HIGH-VISIBILITY SIDEBAR STYLING ---
 st.markdown("""
     <style>
-    /* Styling for the sidebar specifically */
+    /* Force Sidebar Buttons to be Oxford Blue with Gold Text at all times */
     [data-testid="stSidebar"] .stButton > button {
-        background-color: #002147; /* Oxford Blue */
-        color: #C5A059; /* Academy Gold */
-        border-radius: 5px;
-        border: 1px solid #C5A059;
-        width: 100%;
-        font-weight: bold;
-        transition: 0.3s;
-    }
-    
-    /* Styling for the Sidebar Link Buttons (The Library) */
-    [data-testid="stSidebar"] a {
-        background-color: #f0f2f6; /* Light grey background for links */
-        color: #002147 !0mportant; 
-        border: 1px solid #002147;
-        padding: 5px 10px;
-        border-radius: 5px;
-        text-decoration: none;
-        display: block;
-        margin-bottom: 5px;
-        text-align: center;
-        font-weight: bold;
+        background-color: #002147 !important; /* Oxford Blue */
+        color: #C5A059 !important; /* Academy Gold */
+        border: 2px solid #C5A059 !important;
+        border-radius: 8px !important;
+        width: 100% !important;
+        font-weight: bold !important;
+        height: 3em !important;
+        display: block !important;
     }
 
-    /* Hover effect to make it feel premium */
-    [data-testid="stSidebar"] .stButton > button:hover {
-        background-color: #C5A059;
-        color: #002147;
-        border: 1px solid #002147;
+    /* Force the Link Buttons (The Library) to be visible */
+    [data-testid="stSidebar"] a {
+        background-color: #002147 !important;
+        color: #C5A059 !important;
+        padding: 10px !important;
+        border-radius: 8px !important;
+        text-decoration: none !important;
+        display: block !important;
+        margin-bottom: 8px !important;
+        text-align: center !important;
+        border: 1px solid #C5A059 !important;
+    }
+
+    /* Change colour when hovering so the user knows it's active */
+    [data-testid="stSidebar"] .stButton > button:hover, 
+    [data-testid="stSidebar"] a:hover {
+        background-color: #C5A059 !important;
+        color: #002147 !important;
     }
     </style>
     """, unsafe_allow_html=True)
