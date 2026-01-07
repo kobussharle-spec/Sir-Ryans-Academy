@@ -155,11 +155,24 @@ with st.sidebar:
     ])
     st.session_state.current_subject = subject
     
-    # File Uploader
-    st.header("📄 Study Materials")
-    uploaded_file = st.file_uploader("Upload your PDF notes:", type="pdf")
-    
-    st.divider()
+    # --- SIDEBAR: THE DOCUMENT UPLOADER ---
+with st.sidebar:
+    st.header("📜 Academy Library")
+    uploaded_file = st.file_uploader("Upload your Course Workbook (PDF)", type="pdf")
+
+    if uploaded_file is not None:
+        try:
+            import pypdf
+            reader = pypdf.PdfReader(uploaded_file)
+            text = ""
+            for page in reader.pages:
+                text += page.extract_text()
+            
+            # This is the vital bridge!
+            st.session_state.pdf_text = text
+            st.success("Workbook safely filed in the archives!")
+        except Exception as e:
+            st.error(f"The Librarian is struggling: {e}")
     
     # Study Streak
     today = datetime.date.today()
