@@ -61,6 +61,45 @@ if not st.session_state.authenticated:
         else: st.error("Access Denied, old sport.")
     st.stop()
 
+# --- 6. THE EXECUTIVE ASSESSMENT TEST ---
+if st.session_state.get("english_level") is None:
+    st.markdown("## 📜 Academy Placement Evaluation")
+    st.info(f"Welcome, {st.session_state.student_name}. Before we begin, Sir Ryan must assess your current standing.")
+    
+    with st.form("assessment_form"):
+        st.write("---")
+        q1 = st.radio("1. Which sentence is grammatically correct for a formal report?", 
+                    ["I done the task yesterday.", "I have completed the task yesterday.", "I completed the task yesterday."])
+        
+        q2 = st.radio("2. In the STAR method, what does the 'R' stand for?", 
+                    ["Review", "Results", "Reaction", "Reasoning"])
+        
+        q3 = st.selectbox("3. Choose the most professional synonym for 'Happy':", 
+                        ["Chuffed", "Satisfied", "Content", "Delighted"])
+        
+        submit_test = st.form_submit_button("Submit for Grading")
+        
+        if submit_test:
+            # Simple Logic to determine level
+            score = 0
+            if q1 == "I completed the task yesterday.": score += 1
+            if q2 == "Results": score += 1
+            if q3 == "Delighted": score += 1
+            
+            if score == 3:
+                st.session_state.english_level = "Advanced Executive"
+                st.session_state.merits += 50
+            elif score == 2:
+                st.session_state.english_level = "Intermediate Scholar"
+                st.session_state.merits += 20
+            else:
+                st.session_state.english_level = "Beginner Professional"
+            
+            st.success(f"Grading Complete! You have been placed in: {st.session_state.english_level}")
+            time.sleep(2)
+            st.rerun()
+    st.stop() # Stops the rest of the app from loading until test is done
+
 # --- 6. VOICE ENGINE ---
 def speak_text(text):
     try:
