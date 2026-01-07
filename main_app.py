@@ -98,9 +98,9 @@ if not st.session_state.authenticated:
     license_key = st.text_input("Enter your License Key:", type="password")
     
     if not st.session_state.authenticated:
-    st.title("🏛️ Welcome to Sir Ryan's Academy")
-    name_input = st.text_input("Please enter your name for the Academy Register:", placeholder="e.g. Master John")
-    license_key = st.text_input("Enter your License Key:", type="password")
+       st.title("🏛️ Welcome to Sir Ryan's Academy")
+       name_input = st.text_input("Please enter your name for the Academy Register:", placeholder="e.g. Master John")
+       license_key = st.text_input("Enter your License Key:", type="password")
     
     if st.button("Unlock the Study Hub"):
         if license_key == "Oxford2026" and name_input:
