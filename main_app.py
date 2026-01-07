@@ -285,30 +285,43 @@ if st.session_state.homework_task:
             st.balloons()
             st.rerun()
 
-# --- 8. CHAT HUB (SPEED & FIREWORKS VERSION) ---
-if prompt := st.chat_input("Ask Sir Ryan anything..."):
+# --- 8. THE DOCUMENT-AWARE CHAT HUB ---
+st.write("---")
+
+# 1. Check if we have PDF text to talk about
+pdf_context = st.session_state.get("pdf_text", "No document uploaded yet.")
+
+if prompt := st.chat_input("Ask Sir Ryan about your course..."):
     st.session_state.messages.append({"role": "user", "content": prompt})
+    
     with st.chat_message("user"):
         st.markdown(prompt)
 
     with st.chat_message("assistant"):
-        # We use the spinner here to get the 'Fireworks/Sparkle' look back
-        with st.spinner("Sir Ryan is consulting the archives..."):
-            client = Groq(api_key=st.secrets["GROQ_API_KEY"])
-            
-            # SWITCHED TO 8B MODEL FOR LIGHTNING SPEED
-            completion = client.chat.completions.create(
-                # --- UPDATE THIS LINE ---
-                model="llama-3.1-8b-instant", 
-                messages=[{"role": "system", "content": "You are Sir Ryan, a posh British tutor. Be concise but polite."}] + st.session_state.messages,
-            )
-            
-            response = completion.choices[0].message.content
-            st.markdown(response)
-            st.session_state.messages.append({"role": "assistant", "content": response})
-            
-            # Speak after the text is fully visible
-            speak_text(response)
+        with st.spinner("Sir Ryan is reviewing your workbook..."):
+            try:
+                client = Groq(api_key=st.secrets["GROQ_API_KEY"])
+                
+                # We inject the PDF context directly into the 'system' instructions
+                system_instruction = f"""
+                You are Sir Ryan, a posh British tutor. 
+                Your student has uploaded a workbook called '7-Day Interview Course'.
+                USE THE FOLLOWING TEXT TO ANSWER: {pdf_context}
+                If the answer isn't in the text, say you don't know, but don't invent history!
+                """
+                
+                completion = client.chat.completions.create(
+                    model="llama-3.1-8b-instant", 
+                    messages=[{"role": "system", "content": system_instruction}] + st.session_state.messages,
+                )
+                
+                response = completion.choices[0].message.content
+                st.markdown(response)
+                st.session_state.messages.append({"role": "assistant", "content": response})
+                speak_text(response)
+                
+            except Exception as e:
+                st.error(f"The Library is a bit cluttered: {e}")
 
 # Footer
 st.write("---")
