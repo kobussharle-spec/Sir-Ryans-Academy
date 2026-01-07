@@ -113,28 +113,60 @@ if not st.session_state.welcomed:
     speak_text(welcome_msg)
     st.session_state.welcomed = True
 
-# --- 9. SIDEBAR ---
+# --- 9. SIDEBAR: THE ACADEMY REGISTRY ---
 with st.sidebar:
+    st.image("https://img.icons8.com/color/96/graduation-cap.png", width=80)
     st.title("🏫 Academy Registry")
-    st.write(f"**Scholar:** {st.session_state.student_name}")
-    st.write(f"**Level:** {st.session_state.english_level}")
-    st.divider()
-    st.session_state.current_subject = st.selectbox("Select Study Focus:", [
-        "Interview Prep (STAR Method)", "Business English", "English: Grammar", "English: Writing", "Medicine", "Law"
-    ])
     
-    with st.expander("📕 Dictionary"):
+    # --- Profile Section ---
+    st.markdown("### 👤 Scholar Profile")
+    st.write(f"**Name:** {st.session_state.student_name}")
+    st.write(f"**Status:** {st.session_state.english_level}")
+    st.write(f"**Merits Earned:** ⭐ {st.session_state.merits}")
+    
+    st.divider()
+    
+    # --- Study Selection ---
+    st.markdown("### 📚 Study Focus")
+    st.session_state.current_subject = st.selectbox("Select Focus Area:", [
+        "Executive Conversation",
+        "Business Writing & Emails",
+        "Professional Etiquette",
+        "Medical English",
+        "Legal English",
+        "Technical & Engineering English",
+        "IELTS/TOEFL Preparation",
+        "Interview Excellence (STAR Method)",
+        "British Idioms & Slang"
+    ])
+
+    st.divider()
+
+    # --- Tools ---
+    with st.expander("📕 Academy Dictionary"):
         word = st.text_input("Look up a word:").strip()
         if word:
             try:
                 res = requests.get(f"https://api.dictionaryapi.dev/api/v2/entries/en/{word}")
                 if res.status_code == 200:
-                    st.write(f"**Def:** {res.json()[0]['meanings'][0]['definitions'][0]['definition']}")
-            except: st.error("Offline.")
+                    data = res.json()
+                    st.write(f"**Definition:** {data[0]['meanings'][0]['definitions'][0]['definition']}")
+                    if 'example' in data[0]['meanings'][0]['definitions'][0]:
+                        st.write(f"*Example:* {data[0]['meanings'][0]['definitions'][0]['example']}")
+            except:
+                st.error("Dictionary is currently in the archives.")
 
+    # --- Support & Exit ---
+    st.divider()
     st.link_button("💬 WhatsApp Dean", "https://wa.me/27833976517")
+    
+    if st.button("🧹 Reset Study Session"):
+        st.session_state.clear()
+        st.rerun()
+
+    # --- Permanent Signature ---
     st.markdown("---")
-    st.write("© 2026 J Steenekamp | All Rights Reserved")
+    st.markdown("<p style='color: #C5A059; font-size: 0.8em;'>© 2026 J Steenekamp<br>Sir Ryan's Executive Academy<br>All Rights Reserved</p>", unsafe_allow_html=True)
 
 # --- 10. MAIN HUB ---
 st.markdown(f"<h1 style='color: #002147;'>🎓 Sir Ryan’s Executive Academy</h1>", unsafe_allow_html=True)
