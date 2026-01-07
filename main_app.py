@@ -307,27 +307,43 @@ with st.expander("🔍 Academy System Status"):
     else:
         st.error("❌ No document detected in memory. Please upload your PDF in the sidebar.")
 
-# --- 8. THE EFFICIENT DOCUMENT CHAT HUB (REFINED) ---
+# --- 8. THE VOICE-ENABLED CHAT HUB ---
+from streamlit_mic_recorder import mic_recorder
+
 st.write("---")
 
-# 1. Grab the PDF text and clip it more tightly to fit the 6000 token limit
+# 1. Context Clipping (Staying under 6000 tokens)
 full_context = st.session_state.get("pdf_text", "No document uploaded yet.")
-# We reduce 12000 to 8000 to stay safely under the TPM limit
 short_context = full_context[:8000] 
 
-if prompt := st.chat_input("Ask Sir Ryan about your course..."):
+# 2. THE MICROPHONE INTERFACE
+st.write("🎙️ **Practice Speaking your STAR Answer:**")
+audio_data = mic_recorder(
+    start_prompt="Click to Start Speaking",
+    stop_prompt="Click to Stop",
+    key='recorder'
+)
+
+# If audio is recorded, we show it here
+if audio_data:
+    # Note: Transcription usually requires an API call like Whisper.
+    # For now, this acts as a 'Voice Check'. 
+    # To truly 'Transcribe', we'd add one more line for Groq Whisper.
+    st.audio(audio_data['bytes'])
+    st.info("Listen back to your clarity and pace. Does it sound like a colleague? [cite: 68]")
+
+# 3. CHAT INPUT
+if prompt := st.chat_input("Type or paste your answer for Sir Ryan..."):
     st.session_state.messages.append({"role": "user", "content": prompt})
     
     with st.chat_message("user"):
         st.markdown(prompt)
 
     with st.chat_message("assistant"):
-        with st.spinner("Sir Ryan is selecting the most relevant chapters..."):
+        with st.spinner("Sir Ryan is listening intently..."):
             try:
                 client = Groq(api_key=st.secrets["GROQ_API_KEY"])
-                
-                # Keep the system instruction lean and mean
-                system_instruction = f"You are Sir Ryan, a posh British tutor. Use this course text: {short_context}. Be concise."
+                system_instruction = f"You are Sir Ryan, a posh British tutor. Use this course: {short_context}. Be concise."
                 
                 completion = client.chat.completions.create(
                     model="llama-3.1-8b-instant", 
@@ -340,7 +356,7 @@ if prompt := st.chat_input("Ask Sir Ryan about your course..."):
                 speak_text(response)
                 
             except Exception as e:
-                st.error(f"The Library is still a bit cluttered: {e}")
+                st.error(f"The Library is a bit cluttered: {e}")
 # Footer
 st.write("---")
 if st.button("🎓 Graduate"):
