@@ -135,6 +135,17 @@ if not st.session_state.authenticated:
 # --- 5. THE ACADEMY SIDEBAR (FULL RESTORATION) ---
 with st.sidebar:
     st.title("🏫 Academy Controls")
+
+with st.sidebar:
+    st.header("📖 Academy Handbook")
+    with st.expander("How to use this Academy"):
+        st.write("""
+        1. **The Library:** Upload your '7-Day Interview Course' PDF. 
+        2. **Archiving:** Once you see 'File Received,' Sir Ryan has 'read' the text.
+        3. **Fresh Start:** If you refresh the page, the archive is cleared. You must re-upload the workbook to continue.
+        4. **Consultation:** Ask Sir Ryan anything! Use the chat box to practice your STAR Method answers.
+        5. **Biscuits:** Sir Ryan does his best work when you are polite and use proper British spelling!
+        """)
     
     # Gradebook
     st.header("📜 Student Gradebook")
