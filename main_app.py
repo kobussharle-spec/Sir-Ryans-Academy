@@ -146,28 +146,7 @@ with st.sidebar:
     st.markdown(f"### 👤 Scholar: {st.session_state.student_name}")
     st.divider()
 
-    st.markdown("### 🏛️ The Royal Library Vault")
-    
-    if st.session_state.access_level == "Guest":
-        st.warning("🔒 Library Restricted")
-        st.write("The Royal Vault is reserved for Enrolled Scholars.")
-        st.link_button("👑 Unlock Full Academy Access", "https://www.etsy.com/shop/YourShopName")
-        st.button("📖 Oxford Dictionary (Locked)", disabled=True)
-        st.button("📻 BBC Learning (Locked)", disabled=True)
-    else:
-        st.success("👑 Full Access Granted")
-        st.write("**Dictionaries & Phonetics**")
-        st.link_button("Oxford English Dictionary", "https://www.oed.com/")
-        st.link_button("Cambridge Dictionary", "https://dictionary.cambridge.org/")
-        
-        st.write("**Study Resources**")
-        st.link_button("BBC Learning English", "https://www.bbc.co.uk/learningenglish")
-        st.link_button("Oxford University Press", "https://elt.oup.com/")
-    
-    # We have removed the final st.divider() to prevent the indentation error.
-    # The sidebar will end here naturally.
-    
-    # --- Study Selection ---
+    # --- 📚 Study Selection ---
     st.markdown("### 📚 Study Focus")
     st.session_state.current_subject = st.selectbox("Select Focus Area:", [
         "General English", "English: Tenses & Time", "English: Grammar Mastery",
@@ -179,24 +158,17 @@ with st.sidebar:
 
     st.divider()
 
-   st.divider()
-
-    # --- THE ROYAL LIBRARY (WITH ACCESS CONTROL) ---
+    # --- 🏛️ THE ROYAL LIBRARY (WITH ACCESS CONTROL) ---
     st.markdown("### 🏛️ The Royal Library Vault")
     
     if st.session_state.access_level == "Guest":
-        # What the GUEST sees
         st.warning("🔒 Library Restricted")
         st.write("The Royal Vault is reserved for Enrolled Scholars.")
         st.link_button("👑 Unlock Full Academy Access", "https://www.etsy.com/shop/YourShopName")
-        
-        # We show them what they are missing (but these buttons do nothing)
         st.button("📖 Oxford Dictionary (Locked)", disabled=True)
         st.button("📻 BBC Learning (Locked)", disabled=True)
-    
     else:
-        # What the FULL MEMBER sees (Your original links)
-        st.success("🔓 Full Access Granted")
+        st.success("👑 Full Access Granted")
         st.write("**Dictionaries & Phonetics**")
         st.link_button("Oxford English Dictionary", "https://www.oed.com/")
         st.link_button("Cambridge Dictionary", "https://dictionary.cambridge.org/")
