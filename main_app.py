@@ -33,22 +33,40 @@ def speak_text(text):
     except:
         pass
 
-# --- 4. EXECUTIVE THEME ---
+# --- CUSTOM STYLING FOR SIDEBAR BUTTONS ---
 st.markdown("""
     <style>
-    .stApp { background-color: #F4F7F6; }
-    [data-testid="stSidebar"] { background-color: #002147 !important; min-width: 350px; }
-    [data-testid="stSidebar"] h1, [data-testid="stSidebar"] h2, [data-testid="stSidebar"] h3, 
-    [data-testid="stSidebar"] p, [data-testid="stSidebar"] label, [data-testid="stSidebar"] li, [data-testid="stSidebar"] .stMarkdown {
-        color: #FFFFFF !important;
+    /* Styling for the sidebar specifically */
+    [data-testid="stSidebar"] .stButton > button {
+        background-color: #002147; /* Oxford Blue */
+        color: #C5A059; /* Academy Gold */
+        border-radius: 5px;
+        border: 1px solid #C5A059;
+        width: 100%;
+        font-weight: bold;
+        transition: 0.3s;
     }
-    .stButton>button { 
-        background-color: #C5A059 !important; 
-        color: #002147 !important; 
-        font-weight: bold !important;
-        border-radius: 8px !important;
+    
+    /* Styling for the Sidebar Link Buttons (The Library) */
+    [data-testid="stSidebar"] a {
+        background-color: #f0f2f6; /* Light grey background for links */
+        color: #002147 !0mportant; 
+        border: 1px solid #002147;
+        padding: 5px 10px;
+        border-radius: 5px;
+        text-decoration: none;
+        display: block;
+        margin-bottom: 5px;
+        text-align: center;
+        font-weight: bold;
     }
-    footer {visibility: hidden;}
+
+    /* Hover effect to make it feel premium */
+    [data-testid="stSidebar"] .stButton > button:hover {
+        background-color: #C5A059;
+        color: #002147;
+        border: 1px solid #002147;
+    }
     </style>
     """, unsafe_allow_html=True)
 
