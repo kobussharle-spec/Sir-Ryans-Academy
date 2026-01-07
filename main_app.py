@@ -100,6 +100,23 @@ if st.session_state.get("english_level") is None:
             st.rerun()
     st.stop() # Stops the rest of the app from loading until test is done
 
+# --- 7. THE HEADMASTER'S WELCOME (Triggers once per login) ---
+if "welcomed" not in st.session_state:
+    welcome_text = f"""
+    Welcome to the Academy, {st.session_state.student_name}! 
+    I see you have been placed in the {st.session_state.english_level} tier. 
+    I have your workbook ready in the archives. Shall we get to work on your career 
+    success? Do grab a biscuit and let's begin!
+    """
+    # Sir Ryan speaks the welcome
+    speak_text(welcome_text)
+    
+    # Show a temporary celebratory message
+    st.toast(f"Headmaster Ryan is chuffed to see you, {st.session_state.student_name}!", icon="🎓")
+    
+    # Ensure he doesn't repeat this every time the page refreshes
+    st.session_state.welcomed = True
+
 # --- 6. VOICE ENGINE ---
 def speak_text(text):
     try:
