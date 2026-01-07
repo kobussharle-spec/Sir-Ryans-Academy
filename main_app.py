@@ -120,19 +120,45 @@ st.markdown(f"""
 </div>
 """, unsafe_allow_html=True)
 
-col_a, col_b = st.columns(2)
 with col_a:
     st.subheader("🎤 Oral Examination")
-    rec = mic_recorder(start_prompt="⏺️ Record", stop_prompt="⏹️ Save")
+    rec = mic_recorder(start_prompt="⏺️ Record Practice", stop_prompt="⏹️ Save & Listen")
+    
     if rec: 
         st.audio(rec['bytes'])
-        if st.button("Submit Recording"): st.success("Graded!")
-
-with col_b:
-    st.subheader("📝 Quick Actions")
-    if st.button("📝 Start Quiz"):
-        st.session_state.messages.append({"role": "user", "content": "Sir Ryan, please quiz me!"})
-        st.rerun()
+        if st.button("Submit for Headmaster's Critique"):
+            with st.spinner("Sir Ryan is listening closely..."):
+                try:
+                    # 1. Save the audio temporarily
+                    with open("student_response.wav", "wb") as f:
+                        f.write(rec['bytes'])
+                    
+                    # 2. Transcribe using Groq's Whisper "Ears"
+                    client = Groq(api_key=st.secrets["GROQ_API_KEY"])
+                    with open("student_response.wav", "rb") as audio_file:
+                        transcription = client.audio.transcriptions.create(
+                            file=("student_response.wav", audio_file.read()),
+                            model="whisper-large-v3",
+                            response_format="text"
+                        )
+                    
+                    # 3. Sir Ryan provides his feedback
+                    st.info(f"Sir Ryan heard: '{transcription}'")
+                    
+                    critique = client.chat.completions.create(
+                        model="llama-3.1-8b-instant",
+                        messages=[
+                            {"role": "system", "content": f"You are Sir Ryan. Critically evaluate this student's spoken answer based on the STAR method and your workbook knowledge: {st.session_state.pdf_text[:4000]}. Be posh, encouraging, and mention biscuits!"},
+                            {"role": "user", "content": f"I said: {transcription}. How was my content and clarity?"}
+                        ]
+                    ).choices[0].message.content
+                    
+                    st.markdown(critique)
+                    speak_text(critique) # Sir Ryan speaks his feedback!
+                    st.session_state.gradebook.append({"Subject": "Oral Exam", "Grade": "Graded"})
+                    st.success("Examination recorded in your Gradebook!")
+                except Exception as e:
+                    st.error(f"A spot of bother with the ears: {e}")
 
 st.divider()
 for msg in st.session_state.messages:
