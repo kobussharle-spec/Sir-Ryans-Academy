@@ -167,8 +167,7 @@ with st.sidebar:
         st.link_button("👑 Unlock Full Academy Access", "https://www.etsy.com/shop/YourShopName")
         st.button("📖 Oxford Dictionary (Locked)", disabled=True)
         st.button("📻 BBC Learning (Locked)", disabled=True)
-else:
-        # What the FULL MEMBER sees
+    else:
         st.success("👑 Full Access Granted")
         
         st.write("**Dictionaries & Phonetics**")
