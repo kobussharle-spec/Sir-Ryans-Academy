@@ -15,14 +15,9 @@ import pandas as pd
 st.set_page_config(page_title="Sir Ryan’s Academy", page_icon="🎓", layout="wide")
 
 # --- 2. THE PERMANENT ACADEMY ARCHIVES ---
-# DEAN: Paste your entire 7-Day Course text between the triple quotes below!
+# PASTE YOUR WORKBOOK TEXT BETWEEN THE TRIPLE QUOTES BELOW
 ACADEMY_ARCHIVES = """
-PASTE YOUR WORKBOOK TEXT HERE. 
-FOR EXAMPLE:
-Day 1: Understanding the STAR Method...
-Day 2: Mastering Professional Etiquette...
-...
-Day 7: Final Interview Readiness.
+PASTE YOUR TEXT HERE
 """
 
 # --- 3. EXECUTIVE THEME ---
@@ -39,8 +34,8 @@ st.markdown("""
         color: #002147 !important; 
         font-weight: bold !important;
         border-radius: 8px !important;
-        width: 100%;
     }
+    footer {visibility: hidden;} /* Hides Streamlit's default footer to keep it Executive */
     </style>
     """, unsafe_allow_html=True)
 
@@ -79,7 +74,7 @@ def speak_text(text):
         st.markdown(f'<audio autoplay="true" src="data:audio/mp3;base64,{b64}">', unsafe_allow_html=True)
     except: pass
 
-# --- 7. SIDEBAR ---
+# --- 7. SIDEBAR (With Copyright) ---
 with st.sidebar:
     st.title("🏫 Academy Registry")
     st.session_state.current_subject = st.selectbox("Select Study Focus:", [
@@ -91,7 +86,7 @@ with st.sidebar:
     ])
 
     with st.expander("📖 Academy User Manual"):
-        st.write("Sir Ryan has already memorised your workbook! Simply ask him questions about the course or request a quiz.")
+        st.write("Sir Ryan has memorised your workbook! Simply ask him questions or request a quiz.")
 
     with st.expander("📕 Academy Dictionary"):
         word = st.text_input("Look up a word:").strip()
@@ -103,6 +98,12 @@ with st.sidebar:
             except: st.error("Dictionary offline.")
 
     st.link_button("💬 WhatsApp Dean", "https://wa.me/27833976517")
+    
+    st.markdown("---")
+    st.markdown("### 📜 Legal & Honour")
+    st.write("© 2026 J Steenekamp")
+    st.write("All Rights Reserved")
+    
     if st.button("🧹 Reset Session"):
         st.session_state.clear()
         st.rerun()
@@ -113,8 +114,9 @@ st.markdown(f"<h1 style='color: #002147;'>🎓 Sir Ryan’s Executive Academy</h
 st.markdown(f"""
 <div style="border: 3px solid #C5A059; padding: 20px; border-radius: 10px; background-color: white;">
     <h3 style="color: #002147;">📜 A Note from the Headmaster</h3>
-    <p>Welcome, <b>{st.session_state.student_name}</b>. I have your workbook ready. Shall we begin with <b>{st.session_state.current_subject}</b>?</p>
+    <p>Welcome, <b>{st.session_state.student_name}</b>. Shall we begin with <b>{st.session_state.current_subject}</b>?</p>
     <p>Please, have a <b>biscuit</b> and let us proceed.</p>
+    <p style='text-align: right; font-size: 0.8em; color: #888;'>© 2026 J Steenekamp | Sir Ryan's Executive Academy</p>
 </div>
 """, unsafe_allow_html=True)
 
@@ -129,7 +131,7 @@ with col_a:
 with col_b:
     st.subheader("📝 Quick Actions")
     if st.button("📝 Start Quiz"):
-        st.session_state.messages.append({"role": "user", "content": "Sir Ryan, please quiz me on the workbook!"})
+        st.session_state.messages.append({"role": "user", "content": "Sir Ryan, please quiz me!"})
         st.rerun()
 
 st.divider()
@@ -143,8 +145,11 @@ if prompt := st.chat_input("Ask Sir Ryan..."):
         client = Groq(api_key=st.secrets["GROQ_API_KEY"])
         resp = client.chat.completions.create(
             model="llama-3.1-8b-instant",
-            messages=[{"role": "system", "content": f"You are Sir Ryan, a posh British tutor. Use this text as your core knowledge: {st.session_state.pdf_text[:8000]}. Use British spelling and mention biscuits!"}] + st.session_state.messages
+            messages=[{"role": "system", "content": f"You are Sir Ryan, a posh British tutor. Use this text as knowledge: {st.session_state.pdf_text[:8000]}. Use British-isms and mention biscuits!"}] + st.session_state.messages
         ).choices[0].message.content
         st.markdown(resp)
         st.session_state.messages.append({"role": "assistant", "content": resp})
         speak_text(resp)
+
+# --- 9. THE PERMANENT FOOTER ---
+st.markdown("<br><br><br><hr><center><p style='color: #888888;'>© 2026 J Steenekamp | Sir Ryan's Executive Academy | All Rights Reserved</p></center>", unsafe_allow_html=True)
