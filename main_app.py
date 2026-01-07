@@ -94,13 +94,26 @@ st.markdown("""
 # --- 4. THE SECURITY GATE ---
 if not st.session_state.authenticated:
     st.title("🏛️ Welcome to Sir Ryan's Academy")
-    name_input = st.text_input("Please enter your name for the Academy Register:", placeholder="e.g. Master John")
-    license_key = st.text_input("Enter your License Key:", type="password")
     
-    # Add , key="gate_name_input" at the end of the line
+    # We only keep the versions with 'key=' to prevent errors and duplicates
     name_input = st.text_input("Please enter your name for the Academy Register:", placeholder="e.g. Master John", key="gate_name_input")
     license_key = st.text_input("Enter your License Key:", type="password", key="gate_license_key")
     
+    if st.button("Unlock the Study Hub"):
+        if license_key == "Oxford2026" and name_input:
+            st.session_state.authenticated = True
+            st.session_state.student_name = name_input
+            
+            # Sir Ryan speaks the welcome
+            welcome_audio = f"Welcome to the Academy, {name_input}! It is an honour to have you here."
+            speak_text(welcome_audio)
+            
+            st.success("The gates are opening...")
+            time.sleep(2)
+            st.rerun()
+        else:
+            st.error("I'm afraid that key doesn't fit the lock, old sport.")
+    st.stop()
     if st.button("Unlock the Study Hub"):
         if license_key == "Oxford2026" and name_input:
             st.session_state.authenticated = True
