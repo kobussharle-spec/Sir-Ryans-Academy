@@ -157,46 +157,49 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# --- 4. THE SECURITY GATE ---
+import streamlit as st
+# ... keep all your other imports ...
+
+# --- 1. PAGE CONFIG MUST BE THE VERY FIRST STREAMLIT COMMAND ---
+st.set_page_config(page_title="Sir Ryan’s Academy", page_icon="🎓")
+
+# --- 2. THE STABLE EXECUTIVE THEME ---
+st.markdown("""
+    <style>
+    .stApp { background-color: #F4F7F6; }
+    [data-testid="stSidebar"] { background-color: #002147 !important; }
+    [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] p { color: white !important; }
+    .stButton>button { background-color: #C5A059 !important; color: white !important; border-radius: 4px !important; }
+    </style>
+    """, unsafe_allow_html=True)
+
+# --- 3. INITIALIZE SESSION STATES ---
+if "authenticated" not in st.session_state:
+    st.session_state.authenticated = False
+# ... (Keep your other initial_states here) ...
+
+# --- 4. THE SINGLE UNIFIED GATE ---
 if not st.session_state.authenticated:
     st.title("🏛️ Welcome to Sir Ryan's Academy")
+    st.info("Please present your credentials to enter the Study Hub.")
     
-    # We only keep the versions with 'key=' to prevent errors and duplicates
-    name_input = st.text_input("Please enter your name for the Academy Register:", placeholder="e.g. Master John", key="gate_name_input")
-    license_key = st.text_input("Enter your License Key:", type="password", key="gate_license_key")
+    name_input = st.text_input("Please enter your name for the Academy Register:", placeholder="e.g. Master John")
+    license_key = st.text_input("Enter your License Key (from Etsy):", type="password")
     
     if st.button("Unlock the Study Hub"):
+        # We will use your preferred key: Oxford2026
         if license_key == "Oxford2026" and name_input:
             st.session_state.authenticated = True
             st.session_state.student_name = name_input
-            
-            # Sir Ryan speaks the welcome
-            welcome_audio = f"Welcome to the Academy, {name_input}! It is an honour to have you here."
-            speak_text(welcome_audio)
-            
-            st.success("The gates are opening...")
-            time.sleep(2)
+            st.success(f"Welcome, {name_input}! Opening the gates...")
+            time.sleep(1)
             st.rerun()
         else:
             st.error("I'm afraid that key doesn't fit the lock, old sport.")
-    st.stop()
-    if st.button("Unlock the Study Hub"):
-        if license_key == "Oxford2026" and name_input:
-            st.session_state.authenticated = True
-            st.session_state.student_name = name_input
-            st.session_state.name = name_input
-            st.session_state.needs_intro = True
-            
-            # --- SIR RYAN SPEAKS THE WELCOME ---
-            welcome_audio = f"Welcome to the Academy, {name_input}! It is an honour to have you here. Please, have a biscuit and let us begin."
-            speak_text(welcome_audio)
-            
-            st.success("The gates are opening...")
-            time.sleep(2) # Give him time to start speaking before the rerun
-            st.rerun()
-        else:
-            st.error("I'm afraid that key doesn't fit the lock.")
-    st.stop()
+    st.stop() # This ensures nothing below runs until they are authenticated
+
+# --- 5. THE REST OF YOUR ACADEMY CODE ---
+# (Everything else: speak_text, show_welcome_letter, sidebar, etc., goes here!)
 
 # --- 5. THE ACADEMY SIDEBAR (FULL RESTORATION) ---
 with st.sidebar:
