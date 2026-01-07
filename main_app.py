@@ -125,47 +125,41 @@ with st.sidebar:
     
     st.divider()
     
+    # --- Study Selection ---
     st.markdown("### 📚 Study Focus")
     st.session_state.current_subject = st.selectbox("Select Focus Area:", [
-        "General English",
-        "English: Tenses & Time",
-        "English: Grammar Mastery",
-        "English: Vocabulary & Diction",
-        "English: Pronunciation & Elocution",
-        "Executive Conversation",
-        "Business Writing & Emails",
-        "Professional Etiquette",
-        "Medical English",
-        "Legal English",
-        "Technical & Engineering English",
-        "IELTS/TOEFL Preparation",
-        "Interview Excellence (STAR Method)",
-        "British Idioms & Slang"
+        "General English", "English: Tenses & Time", "English: Grammar Mastery",
+        "English: Vocabulary & Diction", "English: Pronunciation & Elocution",
+        "Executive Conversation", "Business Writing & Emails", "Professional Etiquette",
+        "Medical English", "Legal English", "Technical & Engineering English",
+        "IELTS/TOEFL Preparation", "Interview Excellence (STAR Method)", "British Idioms & Slang"
     ])
 
     st.divider()
 
-    # --- THE ROYAL LIBRARY (New Links) ---
-    with st.expander("🏛️ The Royal Library Vault"):
-        st.markdown("#### **Dictionaries & Phonetics**")
-        st.link_button("Oxford English Dictionary", "https://www.oed.com/?tl=true")
-        st.link_button("Cambridge Dictionary", "https://dictionary.cambridge.org/dictionary/english/explanatory")
-        st.link_button("Phonetic Spelling Tool", "https://phonetic-spelling.com/")
-        
-        st.markdown("#### **Exam & Level Testing**")
-        st.link_button("English Level Test", "https://engxam.com/english-level-test/")
-        st.link_button("Cambridge Learner Support", "https://www.cambridgeenglish.org/supporting-learners/?level=basic")
-        st.link_button("TEFL Certification Info", "https://teacherrecord.com/tefl-certificate")
-        
-        st.markdown("#### **Study & Grammar Resources**")
-        st.link_button("BBC Learning English", "https://www.bbc.co.uk/learningenglish/english/grammar")
-        st.link_button("Oxford University Press Resources", "https://elt.oup.com/learning_resources/")
-        
-        st.markdown("#### **Interactive & Games**")
-        st.link_button("Baamboozle Educational Games", "https://www.baamboozle.com/")
-        st.link_button("ABCya Learning Hub", "https://www.abcya.com/")
+    # --- THE ROYAL LIBRARY (DIRECT LINKS - NO HIDING!) ---
+    st.markdown("### 🏛️ The Royal Library Vault")
+    
+    st.write("**Dictionaries & Phonetics**")
+    st.link_button("Oxford English Dictionary", "https://www.oed.com/?tl=true")
+    st.link_button("Cambridge Dictionary", "https://dictionary.cambridge.org/dictionary/english/explanatory")
+    st.link_button("Phonetic Spelling Tool", "https://phonetic-spelling.com/")
+    
+    st.write("**Exam & Level Testing**")
+    st.link_button("English Level Test", "https://engxam.com/english-level-test/")
+    st.link_button("TEFL Certification Info", "https://teacherrecord.com/tefl-certificate")
+    
+    st.write("**Study Resources**")
+    st.link_button("BBC Learning English", "https://www.bbc.co.uk/learningenglish/english/grammar")
+    st.link_button("Oxford University Press", "https://elt.oup.com/learning_resources/")
+    
+    st.write("**Interactive Games**")
+    st.link_button("Baamboozle Games", "https://www.baamboozle.com/")
+    st.link_button("ABCya Hub", "https://www.abcya.com/")
 
     st.divider()
+    
+    # --- Support & Exit ---
     st.link_button("💬 WhatsApp Dean", "https://wa.me/27833976517")
     
     if st.button("🧹 Reset Study Session"):
@@ -173,7 +167,7 @@ with st.sidebar:
         st.rerun()
 
     st.markdown("---")
-    st.markdown("<p style='color: #C5A059; font-size: 0.8em;'>© 2026 J Steenekamp<br>Sir Ryan's Executive Academy<br>All Rights Reserved</p>", unsafe_allow_html=True)
+    st.markdown("<p style='color: #C5A059; font-size: 0.8em;'>© 2026 J Steenekamp<br>Sir Ryan's Academy<br>All Rights Reserved</p>", unsafe_allow_html=True)
 
 # --- 10. MAIN HUB ---
 st.markdown(f"""
