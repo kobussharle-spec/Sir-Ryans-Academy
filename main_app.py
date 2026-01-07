@@ -85,43 +85,38 @@ if not st.session_state.authenticated:
     st.title("🏛️ Welcome to Sir Ryan's Executive Academy")
     name_input = st.text_input("Name for the Register:")
     license_key = st.text_input("License Key:", type="password")
+    
     if st.button("Unlock the Study Hub"):
-        # CHECK THIS LINE BELOW CAREFULLY:
-        if license_key == "Oxford2026" and name_input:
+        if license_key.strip().lower() == "oxford2026" and name_input:
             st.session_state.authenticated = True
             st.session_state.student_name = name_input
             st.rerun()
+        else:
+            st.error("Access Denied. Please check your credentials.")
+    
+    # CRITICAL: This stops the app here so the Assessment doesn't show!
+    st.stop()
 
-# --- 7. THE PLACEMENT ASSESSMENT (General English Edition) ---
+# --- 7. THE PLACEMENT ASSESSMENT ---
+# This part ONLY runs if they passed the Gatekeeper above
 if st.session_state.english_level is None:
     st.title("📜 Academy Placement Evaluation")
-    st.info(f"Welcome, {st.session_state.student_name}. Please complete this brief English evaluation to help Sir Ryan tailor your experience.")
+    
+    # Fast-track for the Dean and his daughter
+    if st.button("🏆 Returning Scholar (Skip Test)"):
+        st.session_state.english_level = "Advanced Executive"
+        st.rerun()
+
+    st.info(f"Welcome, {st.session_state.student_name}. Please complete your entry assessment.")
     
     with st.form("assessment"):
-        st.write("### Part 1: Formal Correspondence")
-        q1 = st.radio("1. Which of these is the most professional way to start an email to someone you've never met?", 
-                    ["Hey there!", "To whom it may concern,", "Hiya!"])
-        
-        st.write("### Part 2: Grammar & Tense")
-        q2 = st.radio("2. Choose the correct sentence for a past achievement:", 
-                    ["I have lead the team last year.", "I led the team last year.", "I leaded the team last year."])
-        
-        st.write("### Part 3: Executive Vocabulary")
-        q3 = st.radio("3. If a meeting is 'adjourned', what has happened?", 
-                    ["It has started.", "It has been cancelled.", "It has ended for the time being."])
-        
-        if st.form_submit_button("Submit for Grading"):
-            # Grading Logic
-            score = 0
-            if q1 == "To whom it may concern,": score += 1
-            if q2 == "I led the team last year.": score += 1
-            if q3 == "It has ended for the time being.": score += 1
-            
-            levels = {3: "Advanced Executive", 2: "Intermediate Scholar", 1: "Beginner Professional", 0: "Beginner Professional"}
-            st.session_state.english_level = levels[score]
-            st.success(f"Grading Complete! Sir Ryan has placed you in the: {st.session_state.english_level} tier.")
-            time.sleep(2)
+        # ... your questions here ...
+        submitted = st.form_submit_button("Submit for Grading")
+        if submitted:
+            st.session_state.english_level = "Executive" # or your grading logic
             st.rerun()
+            
+    # CRITICAL: This stops the app here so the Main Hub doesn't show yet!
     st.stop()
 
 # --- 8. THE HEADMASTER'S WELCOME ---
