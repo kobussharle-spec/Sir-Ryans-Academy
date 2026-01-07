@@ -307,13 +307,14 @@ with st.expander("🔍 Academy System Status"):
     else:
         st.error("❌ No document detected in memory. Please upload your PDF in the sidebar.")
 
-# --- 8. THE REFINED ACADEMY CHAT HUB ---
+# --- 8. THE CLEAN ACADEMY CHAT HUB ---
 st.write("---")
 
-# 1. Grab and clip the PDF text (ensuring we stay under the 6000 token limit)
+# 1. Prepare the context from your 7-Day Course PDF
 full_context = st.session_state.get("pdf_text", "No document uploaded yet.")
-short_context = full_context[:8000] 
+short_context = full_context[:8000] # Kept lean to avoid the 413 error
 
+# 2. THE CHAT INTERFACE
 if prompt := st.chat_input("Ask Sir Ryan about your course..."):
     st.session_state.messages.append({"role": "user", "content": prompt})
     
@@ -321,15 +322,16 @@ if prompt := st.chat_input("Ask Sir Ryan about your course..."):
         st.markdown(prompt)
 
     with st.chat_message("assistant"):
-        with st.spinner("Sir Ryan is reviewing your workbook..."):
+        with st.spinner("Sir Ryan is consulting the workbook..."):
             try:
                 client = Groq(api_key=st.secrets["GROQ_API_KEY"])
                 
+                # Sir Ryan's Personality & Instructions
                 system_instruction = f"""
                 You are Sir Ryan, a posh British tutor. 
                 Use the following course text to help the student: {short_context}
-                If they ask about the STAR method, explain it clearly.
-                Be witty and swap "cookies" for "biscuits".
+                Your goal: Help the student master the STAR method and professional etiquette.
+                Always swap "cookies" for "biscuits" and use British spelling.
                 """
                 
                 completion = client.chat.completions.create(
@@ -343,7 +345,8 @@ if prompt := st.chat_input("Ask Sir Ryan about your course..."):
                 speak_text(response)
                 
             except Exception as e:
-                st.error(f"The Library is a bit cluttered: {e}")
+                st.error(f"The Library is a bit cluttered, Dean: {e}")
+
 # Footer
 st.write("---")
 if st.button("🎓 Graduate"):
