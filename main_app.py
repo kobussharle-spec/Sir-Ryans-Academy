@@ -46,6 +46,39 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
+# --- THE ACADEMY GATEKEEPER ---
+def check_password():
+    """Returns True if the user had the correct password."""
+
+    def password_entered():
+        """Checks whether a password entered by the user is correct."""
+        if st.session_state["password"] == "STAR2026": # You can change this 'key' whenever you like!
+            st.session_state["password_correct"] = True
+            del st.session_state["password"]  # Don't store the password
+        else:
+            st.session_state["password_correct"] = False
+
+    if "password_correct" not in st.session_state:
+        # First run, show input for password.
+        st.title("🏛️ Sir Ryan's Executive Academy")
+        st.text_input(
+            "Please enter the access code provided with your Etsy purchase:", 
+            type="password", 
+            on_change=password_entered, 
+            key="password"
+        )
+        if "password_correct" in st.session_state and not st.session_state["password_correct"]:
+            st.error("😕 Access denied. Please check your credentials and try again.")
+        return False
+    else:
+        return st.session_state["password_correct"]
+
+# --- APP EXECUTION ---
+if not check_password():
+    st.stop()  # Do not run the rest of the app if password isn't correct
+
+# All your existing Academy code (Librarian, Sir Ryan, etc.) goes below this line!
+
 # --- 1. PAGE CONFIG & INITIALIZATION ---
 st.set_page_config(page_title="Sir Ryan’s Academy", page_icon="🎓")
 
