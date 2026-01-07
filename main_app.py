@@ -143,15 +143,30 @@ if not st.session_state.welcomed:
 
 # --- 9. SIDEBAR: THE ACADEMY REGISTRY ---
 with st.sidebar:
-    st.image("https://img.icons8.com/color/96/graduation-cap.png", width=80)
-    st.title("🏫 Academy Registry")
+    st.markdown(f"### 👤 Scholar: {st.session_state.student_name}")
     
-    st.markdown("### 👤 Scholar Profile")
-    st.write(f"**Name:** {st.session_state.student_name}")
-    st.write(f"**Status:** {st.session_state.english_level}")
-    st.write(f"**Merits:** ⭐ {st.session_state.merits}")
+    st.divider() # <--- Check this line's alignment!
+
+    # --- THE ROYAL LIBRARY (WITH ACCESS CONTROL) ---
+    st.markdown("### 🏛️ The Royal Library Vault")
     
-    st.divider()
+    if st.session_state.access_level == "Guest":
+        st.warning("🔒 Library Restricted")
+        st.write("The Royal Vault is reserved for Enrolled Scholars.")
+        st.link_button("👑 Unlock Full Academy Access", "https://www.etsy.com/shop/YourShopName")
+        st.button("📖 Oxford Dictionary (Locked)", disabled=True)
+        st.button("📻 BBC Learning (Locked)", disabled=True)
+    else:
+        st.success("🔓 Full Access Granted")
+        st.write("**Dictionaries & Phonetics**")
+        st.link_button("Oxford English Dictionary", "https://www.oed.com/")
+        st.link_button("Cambridge Dictionary", "https://dictionary.cambridge.org/")
+        
+        st.write("**Study Resources**")
+        st.link_button("BBC Learning English", "https://www.bbc.co.uk/learningenglish")
+        st.link_button("Oxford University Press", "https://elt.oup.com/")
+
+    st.divider() # <--- And this one!
     
     # --- Study Selection ---
     st.markdown("### 📚 Study Focus")
