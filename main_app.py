@@ -129,6 +129,11 @@ with st.sidebar:
     # --- Study Selection ---
     st.markdown("### 📚 Study Focus")
     st.session_state.current_subject = st.selectbox("Select Focus Area:", [
+        "General English",
+        "English: Tenses & Time",
+        "English: Grammar Mastery",
+        "English: Vocabulary & Diction",
+        "English: Pronunciation & Elocution",
         "Executive Conversation",
         "Business Writing & Emails",
         "Professional Etiquette",
