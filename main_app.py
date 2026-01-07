@@ -298,7 +298,8 @@ if prompt := st.chat_input("Ask Sir Ryan anything..."):
             
             # SWITCHED TO 8B MODEL FOR LIGHTNING SPEED
             completion = client.chat.completions.create(
-                model="llama3-8b-8192", 
+                # --- UPDATE THIS LINE ---
+                model="llama-3.1-8b-instant", 
                 messages=[{"role": "system", "content": "You are Sir Ryan, a posh British tutor. Be concise but polite."}] + st.session_state.messages,
             )
             
