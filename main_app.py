@@ -185,6 +185,37 @@ with col_right:
                 ).choices[0].message.content
                 st.info(f"**English Version:** {trans_resp}")
 
+# --- 11. THE HOMEWORK DESK ---
+st.divider()
+st.subheader("📝 Scholar's Homework Desk")
+
+with st.expander("📌 Current Assignment: 'The Executive Introduction'"):
+    st.write("""
+    **Task:** Write a formal 200-word introduction for yourself as if you were entering a boardroom in London. 
+    Focus on using three new vocabulary words from your lesson today.
+    """)
+
+hw_col1, hw_col2 = st.columns(2)
+
+with hw_col1:
+    st.markdown("#### Submit via Text")
+    hw_text = st.text_area("Type your homework here:", height=200, placeholder="Honourable Headmaster, I hereby submit my assignment...")
+    if st.button("🚀 Submit Text Assignment"):
+        if hw_text:
+            st.success("Splendid! Your written work has been placed on the Headmaster's desk.")
+            # Here, we could send this to your Google Sheet later!
+        else:
+            st.warning("Please write something before submitting, old sport.")
+
+with hw_col2:
+    st.markdown("#### Submit via File")
+    hw_file = st.file_uploader("Upload your Essay or Report (PDF/DOCX):", type=['pdf', 'docx', 'txt'])
+    if st.button("📤 Upload Assignment"):
+        if hw_file:
+            st.success(f"File '{hw_file.name}' has been received by the Academy archives.")
+        else:
+            st.info("Select a file from your computer to upload.")
+
 # --- 11. CHAT HUB ---
 st.divider()
 for msg in st.session_state.messages:
