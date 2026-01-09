@@ -194,3 +194,49 @@ with col_right:
     hw_file = st.file_uploader("2. Or upload a file (PDF/DOCX):", type=['pdf', 'docx', 'txt'])
     if st.button("📤 Upload Homework File"):
         if hw_file: st.success(f"File '{hw_file.name}' received.")
+
+# --- 10. CHAT HUB (THE AUDIENCE WITH SIR RYAN) ---
+st.divider()
+st.subheader("💬 Audience with the Headmaster")
+
+# Display the conversation history
+for msg in st.session_state.messages:
+    with st.chat_message(msg["role"]):
+        st.markdown(msg["content"])
+
+# The Chat Input Box
+if prompt := st.chat_input("Ask Sir Ryan a question about English or etiquette..."):
+    # Add user message to history
+    st.session_state.messages.append({"role": "user", "content": prompt})
+    with st.chat_message("user"):
+        st.markdown(prompt)
+    
+    # Generate Sir Ryan's response
+    with st.chat_message("assistant"):
+        try:
+            client = Groq(api_key=st.secrets["GROQ_API_KEY"])
+            resp = client.chat.completions.create(
+                model="llama-3.1-8b-instant",
+                messages=[
+                    {"role": "system", "content": f"You are Sir Ryan, the formal and posh British Headmaster of the Academy. You are speaking to a {st.session_state.english_level} student. Be encouraging but very professional. Swapping cookies for biscuits. Mention biscuits occasionally. Use extra 'u's in words like colour and honour."}
+                ] + st.session_state.messages
+            ).choices[0].message.content
+            
+            st.markdown(resp)
+            st.session_state.messages.append({"role": "assistant", "content": resp})
+            
+            # Voice output
+            speak_text(resp)
+        except Exception as e:
+            st.error("The Headmaster is currently at tea. Please try again in a moment.")
+
+# --- 11. THE ACADEMY FOOTER & COPYRIGHT ---
+st.markdown("<br><br>", unsafe_allow_html=True)
+st.divider()
+st.markdown("""
+    <center>
+        <p style='color: #888888; font-size: 0.9em;'>
+            © 2026 J Steenekamp | 🏛️ Sir Ryan's Academy of English Excellence | All Rights Reserved
+        </p>
+    </center>
+""", unsafe_allow_html=True)
