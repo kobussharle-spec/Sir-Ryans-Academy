@@ -9,6 +9,20 @@ import time
 import datetime
 import requests
 
+# --- 1. SETUP & HEADER ---
+import streamlit as st
+
+# Make sure this is the very first Streamlit command!
+st.set_page_config(page_title="Sir Ryan's Academy", page_icon="👑", layout="centered")
+
+# --- LOGO DISPLAY ---
+# Ensure your logo file (e.g., 'logo.png') is in the same GitHub folder as your script
+st.image("logo.png", width=300) 
+
+st.title("👑 Sir Ryan's Executive Academy")
+st.markdown("### *Mastering English with Elocution & Etiquette*")
+st.divider()
+
 # --- 1. THE FOUNDATION ---
 st.set_page_config(page_title="Sir Ryan’s Academy", page_icon="🎓", layout="wide")
 
