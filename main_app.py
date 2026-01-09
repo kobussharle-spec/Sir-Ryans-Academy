@@ -9,6 +9,9 @@ import time
 import datetime
 import requests
 
+st.set_page_config(page_title="Sir Ryan's Academy", page_icon="👑", layout="centered")
+st.image("logo.png")
+
 # --- 1. SETUP & HEADER ---
 import streamlit as st
 
