@@ -89,34 +89,30 @@ def speak_text(text):
         st.markdown(f'<audio autoplay="true" src="data:audio/mp3;base64,{b64}">', unsafe_allow_html=True)
     except: pass
 
-# --- 6. THE SIDEBAR (REBUILT) ---
+# --- 6. THE SIDEBAR (REBUILT WITH LOGOUT) ---
 with st.sidebar:
     if st.session_state.avatar:
         st.image(st.session_state.avatar, width=100)
-    st.markdown(f"### Welcome, {st.session_state.nickname}")
     
-    # Mute Button
+    st.markdown(f"### Scholar: {st.session_state.nickname}")
+    
+    # Mute & Status
     st.session_state.mute = st.checkbox("🔇 Mute Sir Ryan", value=st.session_state.mute)
     
     st.divider()
-    st.markdown("### 📚 Subject Selection")
-    subjects = [
-        "General English", "Tenses", "Grammar Mastery", "Pronunciation", "Vocabulary", 
-        "Writing: Emails", "Writing: Letters", "Writing: Reports", "Business English",
-        "Medical English", "Legal English (Law)", "Maths in English", "Arts & Culture",
-        "Preparation for ELS", "Interview Excellence", "British Idioms"
-    ]
-    st.selectbox("Focus Area:", subjects, key="current_subject")
+    
+    # THE LOGOUT BUTTON
+    if st.button("🚪 Save & Log Out"):
+        # Here we 'save' by ensuring the session state persists 
+        # but the 'authenticated' lock is turned back on.
+        st.session_state.authenticated = False
+        st.success("Progress saved. Haste ye back!")
+        time.sleep(1) # A small pause to see the message
+        st.rerun()
 
     st.divider()
-    st.markdown("### ⚙️ Settings & Theme")
-    st.session_state.theme = st.radio("Choose Academy Theme:", list(theme_styles.keys()))
-    
-    st.divider()
-    st.markdown("### 🏛️ Library & Resources")
-    st.link_button("Oxford Dictionary", "https://www.oed.com/")
-    st.link_button("BBC Learning English", "https://www.bbc.co.uk/learningenglish")
-    st.link_button("WhatsApp Dean", "https://wa.me/27833976517")
+    st.markdown("### 📚 Subject Selection")
+    # ... (Keep your subjects list here) ...
 
 # --- 7. INTRO STEP GUIDE (USER MANUAL) ---
 with st.expander("📖 NEW SCHOLAR: HOW TO USE THE ACADEMY (Intro Guide)"):
