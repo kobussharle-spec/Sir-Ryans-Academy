@@ -9,11 +9,20 @@ import time
 # --- 1. THE FOUNDATION ---
 st.set_page_config(page_title="Sir Ryan's Academy", page_icon="👑", layout="wide")
 
-# --- 2. LOGO ---
-try:
-    st.image("logo.png", width=350)
-except:
-    st.info("🏛️ The Academy crest is being polished. Welcome!")
+# --- 2. THE GRAND ENTRANCE (LOGO restoration) ---
+col_logo, _ = st.columns([1, 2])
+with col_logo:
+    try:
+        st.image("logo.png", width=350)
+    except:
+        # If the file is missing, we show a majestic digital crest
+        st.markdown("""
+            <div style="background-color: #002147; padding: 20px; border-radius: 10px; border: 2px solid #C5A059; text-align: center;">
+                <h1 style="color: #C5A059; margin: 0; font-family: 'Times New Roman';">🏛️</h1>
+                <h2 style="color: #C5A059; margin: 0; letter-spacing: 2px;">SIR RYAN'S ACADEMY</h2>
+                <p style="color: #C5A059; font-style: italic;">English Excellence</p>
+            </div>
+        """, unsafe_allow_html=True)
 
 # --- 3. SESSION STATES ---
 if "authenticated" not in st.session_state:
