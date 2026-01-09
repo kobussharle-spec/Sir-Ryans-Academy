@@ -9,10 +9,17 @@ import time
 import datetime
 import requests
 
+import streamlit as st
+
+st.set_page_config(page_title="Sir Ryan's Academy", page_icon="👑")
+
+# THIS IS THE SAFETY VALVE
 try:
-    st.image("logo.png")
-except Exception:
-    st.warning("The Academy Logo is being polished. Welcome back!")
+    st.image("logo.png", width=300)
+except:
+    st.info("🏛️ Sir Ryan is currently hanging the Academy portraits. Welcome!")
+
+st.title("Sir Ryan's Academy")
 
 # --- 1. SETUP & HEADER ---
 import streamlit as st
