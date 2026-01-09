@@ -11,7 +11,7 @@ import requests
 
 try:
     st.image("logo.png")
-except:
+except Exception:
     st.warning("The Academy Logo is being polished. Welcome back!")
 
 # --- 1. SETUP & HEADER ---
