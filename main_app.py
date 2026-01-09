@@ -98,7 +98,7 @@ def speak_text(text):
         st.markdown(f'<audio autoplay="true" src="data:audio/mp3;base64,{b64}">', unsafe_allow_html=True)
     except: pass
 
-# --- 7. SIDEBAR (RESTORED LINKS & WHATSAPP) ---
+# --- 7. SIDEBAR (REPAIRED & FULLY RE-ESTABLISHED) ---
 with st.sidebar:
     if st.session_state.avatar:
         st.image(st.session_state.avatar, width=150)
@@ -126,4 +126,14 @@ with st.sidebar:
         st.link_button("TEFL Certificate", "https://teacherrecord.com/tefl-certificate")
         st.link_button("Baamboozle Games", "https://www.baamboozle.com/")
         st.link_button("ABCya! Learning Fun", "https://www.abcya.com/")
-        st.link_button("Oxford University Press", "
+        st.link_button("Oxford University Press", "https://elt.oup.com/learning_resources/")
+        st.link_button("Cambridge Support", "https://www.cambridgeenglish.org/supporting-learners/?level=basic")
+
+    st.divider()
+    st.markdown("### 📞 Academy Support")
+    st.link_button("💬 WhatsApp Dean", "https://wa.me/27833976517")
+    
+    if st.button("🔄 Retake Entrance Exam"):
+        st.session_state.english_level = "Pending"
+        st.rerun()
+
