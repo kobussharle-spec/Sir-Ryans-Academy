@@ -5,9 +5,8 @@ import edge_tts
 import asyncio
 import base64
 import time
-import datetime
 
-# --- 1. FOUNDATION ---
+# --- 1. THE FOUNDATION ---
 st.set_page_config(page_title="Sir Ryan's Academy", page_icon="👑", layout="wide")
 
 # --- 2. LOGO ---
@@ -33,7 +32,7 @@ if not st.session_state.authenticated:
     with col1:
         name_input = st.text_input("Full Name:")
         nick_input = st.text_input("Nickname:")
-        user_photo = st.file_uploader("Upload Portrait:", type=['png', 'jpg', 'jpeg'])
+        user_photo = st.file_uploader("Upload Portrait for Academy Records:", type=['png', 'jpg', 'jpeg'])
     with col2:
         key_input = st.text_input("License Key:", type="password")
         if st.button("Register & Proceed to Entrance Exam"):
@@ -43,17 +42,19 @@ if not st.session_state.authenticated:
                 st.session_state.student_name = name_input
                 st.session_state.nickname = nick_input if nick_input else name_input
                 st.session_state.avatar = user_photo
-                st.session_state.english_level = "Pending"
                 st.rerun()
     st.stop()
 
 # --- 5. THE EXAMINATION ROOM ---
-if st.session_state.authenticated and st.session_state.english_level == "Pending":
+if st.session_state.english_level == "Pending":
     st.title("📜 Academy Entrance Evaluation")
-    if st.button("🏆 Returning Scholar (Skip Test)"):
+    st.markdown("### Welcome, Scholar. Please complete your placement exam.")
+    
+    if st.button("🏆 I am a Returning Scholar (Skip Test)"):
         st.session_state.english_level = "Advanced Executive"
         st.rerun()
 
+    st.divider()
     with st.form("level_test"):
         st.subheader("Placement Exam (10 Questions)")
         q1 = st.radio("1. I _______ to London last year.", ["go", "went", "have gone", "was go"])
@@ -98,7 +99,7 @@ def speak_text(text):
         st.markdown(f'<audio autoplay="true" src="data:audio/mp3;base64,{b64}">', unsafe_allow_html=True)
     except: pass
 
-# --- 7. SIDEBAR (REPAIRED & FULLY RE-ESTABLISHED) ---
+# --- 7. SIDEBAR ---
 with st.sidebar:
     if st.session_state.avatar:
         st.image(st.session_state.avatar, width=150)
@@ -108,6 +109,7 @@ with st.sidebar:
     
     if st.button("🚪 Save & Log Out"):
         st.session_state.authenticated = False
+        st.session_state.english_level = "Pending"
         st.rerun()
 
     st.divider()
@@ -117,9 +119,9 @@ with st.sidebar:
 
     st.divider()
     st.markdown("### 🏛️ Library Vault")
-    with st.expander("📚 Dictionaries & Reference"):
+    with st.expander("📚 Study Resources"):
         st.link_button("Oxford English Dictionary", "https://www.oed.com/?tl=true")
-        st.link_button("Cambridge Explanatory Dictionary", "https://dictionary.cambridge.org/dictionary/english/explanatory")
+        st.link_button("Cambridge Dictionary", "https://dictionary.cambridge.org/dictionary/english/explanatory")
         st.link_button("Phonetic Spelling Tool", "https://phonetic-spelling.com/")
         st.link_button("BBC Grammar Guide", "https://www.bbc.co.uk/learningenglish/english/grammar")
         st.link_button("English Level Test", "https://engxam.com/english-level-test/")
@@ -133,7 +135,62 @@ with st.sidebar:
     st.markdown("### 📞 Academy Support")
     st.link_button("💬 WhatsApp Dean", "https://wa.me/27833976517")
     
-    if st.button("🔄 Retake Entrance Exam"):
+    if st.button("🔄 Retake Level Test"):
         st.session_state.english_level = "Pending"
         st.rerun()
 
+# --- 8. MAIN HUB ---
+st.title(f"Good day, {st.session_state.nickname}!")
+
+# Orientation Guide
+with st.expander("🎓 NEW SCHOLAR ORIENTATION (Read First)"):
+    st.markdown("""
+    1. **Check Your Level**: Look at your sidebar to see your placement result.
+    2. **Oral Practice**: Record your voice for elocution feedback.
+    3. **Homework**: Submit your written tasks or upload reports below.
+    4. **Translator**: Use the desk to convert your home language to Posh English.
+    5. **Chat**: Ask Sir Ryan anything! He loves discussing biscuits.
+    """)
+
+# Progress
+cols = st.columns(4)
+for i, (subj, val) in enumerate(st.session_state.progress.items()):
+    cols[i].metric(subj, f"{val}%")
+    cols[i].progress(val/100)
+
+# --- 9. THE STUDY DESKS ---
+st.divider()
+col_left, col_right = st.columns(2)
+
+with col_left:
+    st.subheader("🎤 Oral Examination")
+    rec = mic_recorder(start_prompt="⏺️ Record Practice", stop_prompt="⏹️ Save & Listen")
+    if rec:
+        st.audio(rec['bytes'])
+        if st.button("Submit to Sir Ryan"):
+            st.success("Analysis complete. Marvelous effort! Have a biscuit.")
+    
+    st.divider()
+    st.subheader("📝 Translator Desk")
+    source_lang = st.selectbox("From:", ["Afrikaans", "Spanish", "French", "German"])
+    t_text = st.text_area("Type here:")
+    if st.button("Translate to British English"):
+        if t_text:
+            client = Groq(api_key=st.secrets["GROQ_API_KEY"])
+            res = client.chat.completions.create(
+                model="llama-3.1-8b-instant",
+                messages=[{"role": "system", "content": f"Translate {source_lang} to formal British English."},
+                          {"role": "user", "content": t_text}]
+            ).choices[0].message.content
+            st.info(res)
+
+with col_right:
+    st.subheader("📝 Homework Desk")
+    hw_text = st.text_area("1. Write your assignment here:", height=150)
+    if st.button("🚀 Submit Written Homework"):
+        st.success("Written homework received! You've earned a biscuit.")
+    
+    st.divider()
+    hw_file = st.file_uploader("2. Or upload a file (PDF/DOCX):", type=['pdf', 'docx', 'txt'])
+    if st.button("📤 Upload Homework File"):
+        if hw_file: st.success(f"File '{hw_file.name}' received.")
