@@ -21,44 +21,41 @@ if "authenticated" not in st.session_state:
     st.session_state.update({
         "authenticated": False, "messages": [], "student_name": "Scholar",
         "nickname": "Scholar", "avatar": None, "mute": False,
-        "english_level": "Pending", "test_score": 0, "show_test": False,
+        "english_level": "Pending", "test_score": 0,
         "progress": {"Grammar": 0, "Tenses": 0, "Vocab": 0, "Business": 0},
         "access_level": "Guest"
     })
 
-# --- 4. THE GATEKEEPER (The Only Way In) ---
+# --- 4. THE GATEKEEPER ---
 if not st.session_state.authenticated:
     st.title("🏛️ Academy Registry")
     col1, col2 = st.columns(2)
     with col1:
         name_input = st.text_input("Full Name:")
         nick_input = st.text_input("Nickname:")
-        user_photo = st.file_uploader("Portrait:", type=['png', 'jpg'])
+        user_photo = st.file_uploader("Upload Portrait:", type=['png', 'jpg', 'jpeg'])
     with col2:
         key_input = st.text_input("License Key:", type="password")
         if st.button("Register & Proceed to Entrance Exam"):
             if name_input and key_input.lower().strip() in ["oxford2026", "guest"]:
                 st.session_state.authenticated = True
+                st.session_state.access_level = "Full" if key_input.lower().strip() == "oxford2026" else "Guest"
                 st.session_state.student_name = name_input
                 st.session_state.nickname = nick_input if nick_input else name_input
                 st.session_state.avatar = user_photo
-                st.session_state.english_level = "Pending" # Force the test trigger
+                st.session_state.english_level = "Pending"
                 st.rerun()
     st.stop()
 
-# --- 5. THE EXAMINATION ROOM (Fenced Off) ---
-# If they are logged in but haven't done the test, they stay here!
+# --- 5. THE EXAMINATION ROOM ---
 if st.session_state.authenticated and st.session_state.english_level == "Pending":
     st.title("📜 Academy Entrance Evaluation")
-    st.markdown("### *You must complete this assessment to enter the Main Hall.*")
-    
-    if st.button("🏆 I am a Returning Scholar (Skip Test)"):
+    if st.button("🏆 Returning Scholar (Skip Test)"):
         st.session_state.english_level = "Advanced Executive"
         st.rerun()
 
-    st.divider()
     with st.form("level_test"):
-        st.subheader("Placement Exam")
+        st.subheader("Placement Exam (10 Questions)")
         q1 = st.radio("1. I _______ to London last year.", ["go", "went", "have gone", "was go"])
         q2 = st.radio("2. Which is correct?", ["He don't like tea", "He doesn't like tea", "He not like tea"])
         q3 = st.radio("3. If I _______ the lottery, I would buy a castle.", ["win", "won", "will win"])
@@ -83,19 +80,13 @@ if st.session_state.authenticated and st.session_state.english_level == "Pending
             if q9 == "Dear Sir/Madam": score += 1
             if q10 == "packet": score += 1
             
-            st.session_state.test_score = score
             if score <= 4: st.session_state.english_level = "Beginner"
             elif score <= 8: st.session_state.english_level = "Intermediate"
             else: st.session_state.english_level = "Advanced Executive"
-            
-            st.success(f"Exam marked! Level assigned: {st.session_state.english_level}")
-            time.sleep(1)
             st.rerun()
-    st.stop() # Stops them from seeing the main hall until form is submitted
+    st.stop()
 
-# --- 6. THE MAIN ACADEMY (Only accessible after level is set) ---
-
-# Voice Function
+# --- 6. VOICE ENGINE ---
 def speak_text(text):
     if st.session_state.mute: return
     try:
@@ -107,68 +98,32 @@ def speak_text(text):
         st.markdown(f'<audio autoplay="true" src="data:audio/mp3;base64,{b64}">', unsafe_allow_html=True)
     except: pass
 
+# --- 7. SIDEBAR (RESTORED LINKS & WHATSAPP) ---
 with st.sidebar:
-    if st.session_state.avatar: st.image(st.session_state.avatar, width=150)
+    if st.session_state.avatar:
+        st.image(st.session_state.avatar, width=150)
     st.markdown(f"### 👤 {st.session_state.nickname}")
-    st.info(f"🏅 Level: **{st.session_state.english_level}**")
+    st.info(f"🏅 Level: {st.session_state.english_level}")
     st.session_state.mute = st.checkbox("🔇 Mute Sir Ryan")
     
-    if st.button("🚪 Log Out"):
+    if st.button("🚪 Save & Log Out"):
         st.session_state.authenticated = False
-        st.session_state.english_level = "Pending"
         st.rerun()
 
     st.divider()
-    st.markdown("### 📚 Subjects")
+    st.markdown("### 📚 Subject Selection")
     subjects = ["General English", "Tenses", "Grammar Mastery", "Pronunciation", "Vocabulary", "Writing Emails", "Writing Letters", "Writing Reports", "Business English", "Legal English", "Maths", "Arts & Culture", "ELS Prep", "Interview Prep"]
-    st.selectbox("Focus:", subjects, key="current_subject")
-    
+    st.selectbox("Focus Area:", subjects, key="current_subject")
+
     st.divider()
-    st.markdown("### 🏛️ Library")
-    with st.expander("Links"):
-        st.link_button("Oxford Dictionary", "https://www.oed.com/?tl=true")
-        st.link_button("BBC Grammar", "https://www.bbc.co.uk/learningenglish/english/grammar")
-
-    if st.button("🔄 Retake Level Test"):
-        st.session_state.english_level = "Pending"
-        st.rerun()
-
-# --- HUB CONTENT ---
-st.title(f"Welcome to the Main Hall, {st.session_state.nickname}!")
-st.subheader(f"Academy Status: {st.session_state.english_level} Scholar")
-
-with st.expander("📖 HOW TO USE THE ACADEMY"):
-    st.write("1. Check your level. 2. Select a subject. 3. Complete homework. 4. Chat with Sir Ryan.")
-
-# Progress
-cols = st.columns(4)
-for i, (subj, val) in enumerate(st.session_state.progress.items()):
-    cols[i].metric(subj, f"{val}%")
-    cols[i].progress(val/100)
-
-st.divider()
-col1, col2 = st.columns(2)
-with col1:
-    st.subheader("🎤 Oral Examination")
-    mic_recorder(start_prompt="⏺️ Record", stop_prompt="⏹️ Save")
-with col2:
-    st.subheader("📝 Homework Desk")
-    st.text_area("Submit assignment:")
-    st.button("🚀 Submit")
-
-# Chat
-st.divider()
-for msg in st.session_state.messages:
-    with st.chat_message(msg["role"]): st.markdown(msg["content"])
-
-if prompt := st.chat_input("Ask Sir Ryan..."):
-    st.session_state.messages.append({"role": "user", "content": prompt})
-    with st.chat_message("user"): st.markdown(prompt)
-    with st.chat_message("assistant"):
-        client = Groq(api_key=st.secrets["GROQ_API_KEY"])
-        resp = client.chat.completions.create(
-            model="llama-3.1-8b-instant",
-            messages=[{"role": "system", "content": f"You are Sir Ryan. Speak to a {st.session_state.english_level} student. Mention biscuits."}] + st.session_state.messages
-        ).choices[0].message.content
-        st.markdown(resp)
-        st.session
+    st.markdown("### 🏛️ Library Vault")
+    with st.expander("📚 Dictionaries & Reference"):
+        st.link_button("Oxford English Dictionary", "https://www.oed.com/?tl=true")
+        st.link_button("Cambridge Explanatory Dictionary", "https://dictionary.cambridge.org/dictionary/english/explanatory")
+        st.link_button("Phonetic Spelling Tool", "https://phonetic-spelling.com/")
+        st.link_button("BBC Grammar Guide", "https://www.bbc.co.uk/learningenglish/english/grammar")
+        st.link_button("English Level Test", "https://engxam.com/english-level-test/")
+        st.link_button("TEFL Certificate", "https://teacherrecord.com/tefl-certificate")
+        st.link_button("Baamboozle Games", "https://www.baamboozle.com/")
+        st.link_button("ABCya! Learning Fun", "https://www.abcya.com/")
+        st.link_button("Oxford University Press", "
