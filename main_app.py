@@ -100,6 +100,36 @@ with st.sidebar:
     st.session_state.mute = st.checkbox("🔇 Mute Sir Ryan", value=st.session_state.mute)
     
     st.divider()
+
+# --- 🏛️ THE ROYAL LIBRARY (UPDATED) ---
+st.markdown("### 🏛️ The Royal Library Vault")
+
+if st.session_state.access_level == "Guest":
+    st.warning("🔒 Library Restricted")
+    st.write("The Royal Vault is reserved for Enrolled Scholars.")
+    st.link_button("👑 Unlock Full Academy Access", "https://www.etsy.com/shop/YourShopName")
+    st.button("📖 Premium Resources (Locked)", disabled=True)
+else:
+    st.success("👑 Full Access Granted")
+    
+    with st.expander("📚 Dictionaries & Reference"):
+        st.link_button("Oxford Learner's Dictionary", "https://www.oxfordlearnersdictionaries.com/")
+        st.link_button("Cambridge Business English", "https://dictionary.cambridge.org/dictionary/english/business-english")
+        st.link_button("Collins Thesaurus", "https://www.collinsdictionary.com/dictionary/english-thesaurus")
+
+    with st.expander("🎓 Executive & Business Skills"):
+        st.link_button("British Council: Business English", "https://learnenglish.britishcouncil.org/business-english")
+        st.link_button("BBC Worklife (Reading Practice)", "https://www.bbc.com/worklife")
+        st.link_button("Harvard Business Review (Advanced)", "https://hbr.org/")
+
+    with st.expander("🎙️ Elocution & Pronunciation"):
+        st.link_button("Oxford Online English (YouTube)", "https://www.youtube.com/user/oxfordonlineenglish")
+        st.link_button("The British Audio Council", "https://www.britishcouncil.org/exam/ielts/prepare/free-practice-tests")
+        st.link_button("YouGlish (Hear words in context)", "https://youglish.com/british")
+
+    with st.expander("🎮 Study Games & Fun"):
+        st.link_button("Baamboozle Academy Games", "https://www.baamboozle.com/")
+        st.link_button("Lyricstraining (Learn with Music)", "https://lyricstraining.com/")
     
     # THE LOGOUT BUTTON
     if st.button("🚪 Save & Log Out"):
