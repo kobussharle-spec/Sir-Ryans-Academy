@@ -10,12 +10,11 @@ import datetime
 import requests
 
 # --- 2. THE FOUNDATION (CONFIG) ---
-# THIS MUST BE THE FIRST ST COMMAND
+# This MUST be the first Streamlit command
 st.set_page_config(page_title="Sir Ryan's Academy", page_icon="👑", layout="centered")
 
 # --- 3. THE GRAND ENTRANCE (LOGO & HEADER) ---
 try:
-    # This tries to show your logo. If the file is missing or broken, it shows the text instead.
     st.image("logo.png", width=300)
 except:
     st.info("🏛️ Sir Ryan is currently polishing the Academy portraits. Welcome!")
@@ -54,6 +53,7 @@ st.markdown("""
         border-radius: 8px !important;
         width: 100% !important;
         font-weight: bold !important;
+        font-weight: bold !important;
     }
     [data-testid="stSidebar"] a {
         background-color: #002147 !important;
@@ -76,7 +76,7 @@ if "authenticated" not in st.session_state:
         "student_name": "Scholar", "pdf_text": ACADEMY_ARCHIVES, 
         "streak_count": 1, "last_visit": datetime.date.today(),
         "english_level": None, "welcomed": False,
-        "current_subject": "Interview Prep (STAR Method)",
+        "current_subject": "General English",
         "access_level": "None", "trophies": []
     })
 
@@ -128,10 +128,8 @@ with st.sidebar:
     if not st.session_state.trophies:
         st.info("Your cabinet is empty.")
     else:
-        cols = st.columns(len(st.session_state.trophies))
-        for i, trophy in enumerate(st.session_state.trophies):
-            with cols[i]:
-                st.markdown(f"## {trophy}")
+        # Show trophies if any exist
+        st.write(" ".join(st.session_state.trophies))
 
     st.divider()
     st.markdown("### 🏛️ Library Vault")
@@ -140,6 +138,7 @@ with st.sidebar:
     else:
         st.link_button("Oxford Dictionary", "https://www.oed.com/")
         st.link_button("BBC Grammar", "https://www.bbc.co.uk/learningenglish/english/grammar")
+        st.link_button("Baamboozle Games", "https://www.baamboozle.com/")
 
     st.link_button("💬 WhatsApp Dean", "https://wa.me/27833976517")
     if st.button("🧹 Reset session"):
@@ -154,5 +153,8 @@ st.markdown(f"""
 </div>
 """, unsafe_allow_html=True)
 
-# Chat and Microphone Logic goes here...
-# [I have shortened this for clarity, but you can keep your existing chat code below this line!]
+# --- 12. ORAL EXAM & CHAT (RESTORED) ---
+col_a, col_b = st.columns(2)
+with col_a:
+    st.subheader("🎤 Oral Examination")
+    rec = mic_recorder(
