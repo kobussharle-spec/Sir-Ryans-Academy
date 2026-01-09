@@ -179,4 +179,4 @@ if prompt := st.chat_input("Ask Sir Ryan..."):
         st.session_state.messages.append({"role": "assistant", "content": resp})
         speak_text(resp)
 
-st.markdown("<br><hr><center><p style='color: #888888;'>© 2026 J Steenekamp | Sir Ryan's
+st.markdown("<br><hr><center><p style='color: #888888;'>© 2026 J Steenekamp | Sir Ryan's Academy | All Rights Reserved</p></center>", unsafe_allow_html=True)
