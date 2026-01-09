@@ -10,11 +10,12 @@ import datetime
 import requests
 
 # --- 2. THE FOUNDATION (CONFIG) ---
-# This MUST be the first Streamlit command
+# This must be the absolute first Streamlit command
 st.set_page_config(page_title="Sir Ryan's Academy", page_icon="👑", layout="centered")
 
 # --- 3. THE GRAND ENTRANCE (LOGO & HEADER) ---
 try:
+    # This tries to show your logo. If the file is missing, it won't crash the app.
     st.image("logo.png", width=300)
 except:
     st.info("🏛️ Sir Ryan is currently polishing the Academy portraits. Welcome!")
@@ -24,9 +25,9 @@ st.markdown("### *Mastering English with Elocution & Etiquette*")
 st.divider()
 
 # --- 4. THE PERMANENT ARCHIVES ---
+# DEAN: You can paste your Day 1 to Day 7 text here later!
 ACADEMY_ARCHIVES = """
-PASTE YOUR WORKBOOK TEXT HERE.
-(Day 1 to Day 7 content)
+Welcome to the Academy Workbook.
 """
 
 # --- 5. THE VOICE BOX ---
@@ -52,7 +53,6 @@ st.markdown("""
         border: 2px solid #C5A059 !important;
         border-radius: 8px !important;
         width: 100% !important;
-        font-weight: bold !important;
         font-weight: bold !important;
     }
     [data-testid="stSidebar"] a {
@@ -117,20 +117,10 @@ if st.session_state.english_level is None:
 with st.sidebar:
     st.markdown(f"### 👤 Scholar: {st.session_state.student_name}")
     st.divider()
-
     st.markdown("### 📚 Study Focus")
     st.session_state.current_subject = st.selectbox("Select Focus:", [
-        "General English", "Executive Conversation", "Business Writing", "British Idioms & Slang"
+        "General English", "Executive Conversation", "Business Writing", "British Idioms"
     ])
-
-    st.divider()
-    st.markdown("### 🏆 Trophy Cabinet")
-    if not st.session_state.trophies:
-        st.info("Your cabinet is empty.")
-    else:
-        # Show trophies if any exist
-        st.write(" ".join(st.session_state.trophies))
-
     st.divider()
     st.markdown("### 🏛️ Library Vault")
     if st.session_state.access_level == "Guest":
@@ -138,14 +128,12 @@ with st.sidebar:
     else:
         st.link_button("Oxford Dictionary", "https://www.oed.com/")
         st.link_button("BBC Grammar", "https://www.bbc.co.uk/learningenglish/english/grammar")
-        st.link_button("Baamboozle Games", "https://www.baamboozle.com/")
-
     st.link_button("💬 WhatsApp Dean", "https://wa.me/27833976517")
-    if st.button("🧹 Reset session"):
+    if st.button("🧹 Reset Session"):
         st.session_state.clear()
         st.rerun()
 
-# --- 11. MAIN HUB ---
+# --- 11. MAIN HUB & ORAL EXAM ---
 st.markdown(f"""
 <div style="border: 3px solid #C5A059; padding: 20px; border-radius: 10px; background-color: white;">
     <h3 style="color: #002147;">📜 Headmaster's Study</h3>
@@ -153,30 +141,44 @@ st.markdown(f"""
 </div>
 """, unsafe_allow_html=True)
 
-# --- 12. ORAL EXAM & CHAT (RESTORED) ---
 col_a, col_b = st.columns(2)
 with col_a:
     st.subheader("🎤 Oral Examination")
-    # LOOK CLOSELY AT THE BRACKETS BELOW
     rec = mic_recorder(start_prompt="⏺️ Record Practice", stop_prompt="⏹️ Save & Listen")
-    
     if rec: 
         st.audio(rec['bytes'])
         if st.button("Submit for Critique"):
             with st.spinner("Sir Ryan is listening..."):
                 client = Groq(api_key=st.secrets["GROQ_API_KEY"])
-                transcription = client.audio.transcriptions.create(
-                    file=("audio.wav", rec['bytes']), 
-                    model="whisper-large-v3", 
-                    response_format="text"
-                )
-                st.info(f"Sir Ryan heard: '{transcription}'")
+                transcription = client.audio.transcriptions.create(file=("audio.wav", rec['bytes']), model="whisper-large-v3", response_format="text")
                 critique = client.chat.completions.create(
                     model="llama-3.1-8b-instant",
-                    messages=[
-                        {"role": "system", "content": "You are Sir Ryan, a posh British tutor. Critique this. Mention biscuits!"},
-                        {"role": "user", "content": f"Critique this: {transcription}"}
-                    ]
+                    messages=[{"role": "system", "content": "You are Sir Ryan. Critique this. Mention biscuits!"},
+                              {"role": "user", "content": f"Critique this: {transcription}"}]
                 ).choices[0].message.content
                 st.markdown(critique)
                 speak_text(critique)
+
+with col_b:
+    st.subheader("📝 Quick Actions")
+    if st.button("📝 Start Quiz"):
+        st.session_state.messages.append({"role": "user", "content": "Sir Ryan, please quiz me on the workbook!"})
+        st.rerun()
+
+# --- 12. CHAT INTERFACE ---
+st.divider()
+for msg in st.session_state.messages:
+    with st.chat_message(msg["role"]): st.markdown(msg["content"])
+
+if prompt := st.chat_input("Ask Sir Ryan..."):
+    st.session_state.messages.append({"role": "user", "content": prompt})
+    with st.chat_message("user"): st.markdown(prompt)
+    with st.chat_message("assistant"):
+        client = Groq(api_key=st.secrets["GROQ_API_KEY"])
+        resp = client.chat.completions.create(
+            model="llama-3.1-8b-instant",
+            messages=[{"role": "system", "content": "You are Sir Ryan. Use British-isms and biscuits!"}] + st.session_state.messages
+        ).choices[0].message.content
+        st.markdown(resp)
+        st.session_state.messages.append({"role": "assistant", "content": resp})
+        speak_text(resp)
