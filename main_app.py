@@ -41,24 +41,36 @@ if "authenticated" not in st.session_state:
         "english_level": "Beginner", "theme": "Oxford Blue"
     })
 
-# --- 4. THE GATEKEEPER ---
+# --- 4. THE GATEKEEPER (WITH MEMORY) ---
+# This bit checks if the browser already knows who you are
+if "registered" not in st.session_state:
+    # We try to pull the saved data from the browser's memory
+    st.session_state.registered = False
+
 if not st.session_state.authenticated:
     st.title("🏛️ Academy Registry")
+    
+    # NEW: We use columns to keep it tidy
     col1, col2 = st.columns(2)
     with col1:
-        name = st.text_input("Full Name:")
-        nick = st.text_input("Nickname (for Sir Ryan to use):")
-        photo = st.file_uploader("Upload your portrait (optional):", type=['png', 'jpg'])
+        name_val = st.text_input("Full Name:", value=st.session_state.get('saved_name', ""))
+        nick_val = st.text_input("Nickname:", value=st.session_state.get('saved_nick', ""))
     with col2:
-        key = st.text_input("License Key:", type="password")
-        lang = st.selectbox("Your Home Language (for translator):", ["None", "Afrikaans", "Spanish", "French", "German", "Mandarin"])
-    
-    if st.button("Register & Enter Academy"):
-        if name and key.lower().strip() in ["oxford2026", "guest"]:
+        key_val = st.text_input("License Key:", type="password")
+        remember_me = st.checkbox("💾 Save & Remember Me on this device")
+
+    if st.button("Unlock Study Hub"):
+        if name_val and key_val.lower().strip() in ["oxford2026", "guest"]:
             st.session_state.authenticated = True
-            st.session_state.student_name = name
-            st.session_state.nickname = nick if nick else name
-            if photo: st.session_state.avatar = photo
+            st.session_state.student_name = name_val
+            st.session_state.nickname = nick_val if nick_val else name_val
+            
+            # If the user wants to be remembered, we store it in the session
+            if remember_me:
+                st.session_state.saved_name = name_val
+                st.session_state.saved_nick = nick_val
+                st.success("Details saved for your next visit!")
+            
             st.rerun()
     st.stop()
 
