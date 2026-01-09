@@ -9,8 +9,10 @@ import time
 import datetime
 import requests
 
-st.set_page_config(page_title="Sir Ryan's Academy", page_icon="👑", layout="centered")
-st.image("logo.png")
+try:
+    st.image("logo.png")
+except:
+    st.warning("The Academy Logo is being polished. Welcome back!")
 
 # --- 1. SETUP & HEADER ---
 import streamlit as st
