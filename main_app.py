@@ -157,4 +157,26 @@ st.markdown(f"""
 col_a, col_b = st.columns(2)
 with col_a:
     st.subheader("🎤 Oral Examination")
-    rec = mic_recorder(
+    # LOOK CLOSELY AT THE BRACKETS BELOW
+    rec = mic_recorder(start_prompt="⏺️ Record Practice", stop_prompt="⏹️ Save & Listen")
+    
+    if rec: 
+        st.audio(rec['bytes'])
+        if st.button("Submit for Critique"):
+            with st.spinner("Sir Ryan is listening..."):
+                client = Groq(api_key=st.secrets["GROQ_API_KEY"])
+                transcription = client.audio.transcriptions.create(
+                    file=("audio.wav", rec['bytes']), 
+                    model="whisper-large-v3", 
+                    response_format="text"
+                )
+                st.info(f"Sir Ryan heard: '{transcription}'")
+                critique = client.chat.completions.create(
+                    model="llama-3.1-8b-instant",
+                    messages=[
+                        {"role": "system", "content": "You are Sir Ryan, a posh British tutor. Critique this. Mention biscuits!"},
+                        {"role": "user", "content": f"Critique this: {transcription}"}
+                    ]
+                ).choices[0].message.content
+                st.markdown(critique)
+                speak_text(critique)
