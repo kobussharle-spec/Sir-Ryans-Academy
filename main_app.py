@@ -85,13 +85,15 @@ def speak_text(text):
         st.markdown(f'<audio autoplay="true" src="data:audio/mp3;base64,{b64}">', unsafe_allow_html=True)
     except: pass
 
-# --- 7. THE SIDEBAR ---
+# --- 7. THE SIDEBAR (FULLY RESTORED) ---
 with st.sidebar:
-    # Display the student's portrait if they uploaded one
+    # 1. Scholar Portrait
     if st.session_state.avatar:
         st.image(st.session_state.avatar, width=150, caption=f"Scholar {st.session_state.nickname}")
     
     st.markdown(f"### 👤 {st.session_state.nickname}")
+    
+    # 2. Controls & Logout
     st.session_state.mute = st.checkbox("🔇 Mute Sir Ryan", value=st.session_state.mute)
     
     if st.button("🚪 Save & Log Out"):
@@ -99,6 +101,8 @@ with st.sidebar:
         st.rerun()
 
     st.divider()
+
+    # 3. Subjects
     st.markdown("### 📚 Subject Selection")
     subjects = ["General English", "Tenses", "Grammar Mastery", "Pronunciation", "Vocabulary", 
                 "Writing: Emails", "Writing: Letters", "Writing: Reports", "Business English",
@@ -107,20 +111,29 @@ with st.sidebar:
     st.selectbox("Current Focus:", subjects, key="current_subject")
 
     st.divider()
-    st.markdown("### ⚙️ Academy Theme")
-    st.session_state.theme = st.radio("Choose Theme:", list(theme_styles.keys()))
 
-    st.divider()
+    # 4. The Library (Restored)
     st.markdown("### 🏛️ Library Vault")
     if st.session_state.access_level == "Guest":
         st.warning("🔒 Library Restricted")
         st.link_button("👑 Unlock Full Access", "https://www.etsy.com/shop/YourShopName")
     else:
         st.success("👑 Full Access Granted")
-        with st.expander("📚 Resources"):
+        with st.expander("📚 Study Resources"):
             st.link_button("Oxford Learner's Dictionary", "https://www.oxfordlearnersdictionaries.com/")
             st.link_button("BBC Worklife", "https://www.bbc.com/worklife")
             st.link_button("YouGlish (British)", "https://youglish.com/british")
+            st.link_button("Baamboozle Academy Games", "https://www.baamboozle.com/")
+
+    st.divider()
+
+    # 5. Support & Reset (Restored)
+    st.markdown("### 📞 Academy Support")
+    st.link_button("💬 WhatsApp Dean", "https://wa.me/27833976517")
+    
+    if st.button("🧹 Reset Session (Clear All)"):
+        st.session_state.clear()
+        st.rerun()
 
 # --- 8. MAIN HUB ---
 st.title(f"Good day, {st.session_state.nickname}!")
