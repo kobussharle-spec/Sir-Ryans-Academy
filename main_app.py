@@ -149,6 +149,21 @@ with st.sidebar:
 # --- 8. MAIN HUB ---
 st.title(f"Good day, {st.session_state.nickname}!")
 
+# --- 8. INTRO STEP GUIDE (RESTORED) ---
+with st.expander("🎓 NEW SCHOLAR: THE ACADEMY ORIENTATION (Read First)"):
+    st.markdown(f"""
+    ### Welcome to your Study Hub, {st.session_state.nickname}!
+    To ensure you get the most out of your time at the Academy, please follow these steps:
+    
+    1.  **Select Your Focus**: Use the **Sidebar** on the left to choose your subject (e.g., *Business English* or *Legal English*).
+    2.  **Oral Practice**: Use the **🎤 Oral Examination** desk to record yourself. Sir Ryan will critique your elocution!
+    3.  **The Library**: Access the **Vault** in the sidebar for world-class dictionaries and testing tools.
+    4.  **Homework**: Complete your weekly tasks in the **📝 Homework Desk** section below.
+    5.  **Consult the Headmaster**: Use the **Chat Hub** at the bottom to ask Sir Ryan any questions about grammar or etiquette.
+    
+    *Note: Use the 🔇 Mute button in the sidebar if you wish to study in silence.*
+    """)
+
 # --- 9. PROGRESS BARS ---
 st.subheader("📊 Your Progress Scores")
 cols = st.columns(len(st.session_state.progress))
