@@ -85,7 +85,7 @@ def speak_text(text):
         st.markdown(f'<audio autoplay="true" src="data:audio/mp3;base64,{b64}">', unsafe_allow_html=True)
     except: pass
 
-# --- 7. THE SIDEBAR (FULLY RESTORED) ---
+# --- 7. THE SIDEBAR (REBUILT WITH YOUR LINKS) ---
 with st.sidebar:
     # 1. Scholar Portrait
     if st.session_state.avatar:
@@ -112,26 +112,37 @@ with st.sidebar:
 
     st.divider()
 
-    # 4. The Library (Restored)
+    # 4. The Library Vault (Your Specific Links Restored)
     st.markdown("### 🏛️ Library Vault")
     if st.session_state.access_level == "Guest":
         st.warning("🔒 Library Restricted")
         st.link_button("👑 Unlock Full Access", "https://www.etsy.com/shop/YourShopName")
     else:
         st.success("👑 Full Access Granted")
-        with st.expander("📚 Study Resources"):
-            st.link_button("Oxford Learner's Dictionary", "https://www.oxfordlearnersdictionaries.com/")
-            st.link_button("BBC Worklife", "https://www.bbc.com/worklife")
-            st.link_button("YouGlish (British)", "https://youglish.com/british")
-            st.link_button("Baamboozle Academy Games", "https://www.baamboozle.com/")
+        
+        with st.expander("📚 Dictionaries & Phonetics"):
+            st.link_button("Oxford English Dictionary", "https://www.oed.com/?tl=true")
+            st.link_button("Cambridge Explanatory Dictionary", "https://dictionary.cambridge.org/dictionary/english/explanatory")
+            st.link_button("Phonetic Spelling Tool", "https://phonetic-spelling.com/")
+            
+        with st.expander("📝 Testing & Certification"):
+            st.link_button("English Level Test (EngExam)", "https://engxam.com/english-level-test/")
+            st.link_button("Cambridge English Support", "https://www.cambridgeenglish.org/supporting-learners/?level=basic")
+            st.link_button("TEFL Certificate", "https://teacherrecord.com/tefl-certificate")
+
+        with st.expander("📖 Grammar & Study Resources"):
+            st.link_button("BBC Learning English", "https://www.bbc.co.uk/learningenglish/english/grammar")
+            st.link_button("Oxford University Press Resources", "https://elt.oup.com/learning_resources/")
+            st.link_button("Baamboozle Games", "https://www.baamboozle.com/")
+            st.link_button("ABCya! Learning Fun", "https://www.abcya.com/")
 
     st.divider()
 
-    # 5. Support & Reset (Restored)
+    # 5. Support & Reset
     st.markdown("### 📞 Academy Support")
     st.link_button("💬 WhatsApp Dean", "https://wa.me/27833976517")
     
-    if st.button("🧹 Reset Session (Clear All)"):
+    if st.button("🧹 Reset Session"):
         st.session_state.clear()
         st.rerun()
 
