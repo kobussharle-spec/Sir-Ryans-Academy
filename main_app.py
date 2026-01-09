@@ -10,6 +10,10 @@ import datetime
 # --- 1. THE FOUNDATION ---
 st.set_page_config(page_title="Sir Ryan's Academy", page_icon="👑", layout="wide")
 
+# >>> INSERT THE LOGO SECTION RIGHT HERE! <<<
+
+# --- 2. THEMES & STYLING ---
+
 # --- 2. THEMES & STYLING ---
 if "theme" not in st.session_state:
     st.session_state.theme = "Oxford Blue"
