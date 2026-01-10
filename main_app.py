@@ -30,17 +30,19 @@ st.markdown("""
 
 # --- 2. SESSION STATES ---
 if "authenticated" not in st.session_state:
-    st.session_state.update({
-        "authenticated": False, "messages": [], "student_name": "Scholar",
-        "nickname": "Scholar", "avatar": None, "mute": False,
-        "english_level": "Pending", "current_subject": "General English",
-        "progress": {"Grammar": 0, "Tenses": 0, "Vocab": 0, "Business": 0},
-        "vault": {}
-    })
+    st.session_state.authenticated = False
+if "messages" not in st.session_state:
+    st.session_state.messages = []
+if "english_level" not in st.session_state:
+    st.session_state.english_level = "Pending"
+if "progress" not in st.session_state:
+    st.session_state.progress = {"Grammar": 0, "Tenses": 0, "Vocab": 0, "Business": 0}
+if "vault" not in st.session_state:
+    st.session_state.vault = {}
 
 # --- 3. VOICE ENGINE ---
 def speak_text(text):
-    if st.session_state.mute: return
+    if st.session_state.get("mute", False): return
     try:
         clean = text.replace("**", "").replace("#", "")
         communicate = edge_tts.Communicate(clean, "en-GB-RyanNeural")
@@ -57,7 +59,6 @@ if not st.session_state.authenticated:
         try:
             st.image("logo.png", width=350)
         except:
-            # Majestic Digital Crest restoration
             st.markdown("""
                 <div style="background-color: #002147; padding: 20px; border-radius: 10px; border: 2px solid #C5A059; text-align: center;">
                     <h1 style="color: #C5A059; margin: 0; font-family: 'Times New Roman';">🏛️</h1>
@@ -69,13 +70,29 @@ if not st.session_state.authenticated:
     st.title("🏛️ Academy Registry")
     c1, c2 = st.columns(2)
     with c1:
-        name_in = st.text_input("Full Name:")
-        nick_in = st.text_input("Nickname:")
-        u_photo = st.file_uploader("Upload Portrait for Academy Records:", type=['png', 'jpg', 'jpeg'])
+        name_in = st.text_input("Full Name:", key="reg_name")
+        nick_in = st.text_input("Nickname:", key="reg_nick")
+        u_photo = st.file_uploader("Upload Portrait:", type=['png', 'jpg', 'jpeg'])
     with c2:
-        key_in = st.text_input("License Key:", type="password")
+        key_in = st.text_input("License Key:", type="password", key="reg_key")
         if st.button("Register & Begin Placement Exam"):
             if name_in and key_in.lower().strip() == "oxford2026":
                 st.session_state.authenticated = True
                 st.session_state.student_name = name_in
-                st.session_state
+                st.session_state.nickname = nick_in if nick_in else name_in
+                st.session_state.avatar = u_photo
+                st.rerun()
+            else:
+                st.warning("Please ensure the name is filled and the key is correct.")
+    st.stop()
+
+# --- 5. LEVEL ASSESSMENT (The "Hickup" Fix) ---
+if st.session_state.authenticated and st.session_state.english_level == "Pending":
+    st.title("📜 Entrance Evaluation")
+    st.markdown(f"### Welcome, {st.session_state.nickname}. Please complete your 10-question placement exam.")
+    
+    with st.form("level_test_form"):
+        q1 = st.radio("1. TENSES: By this time tomorrow, I _______ my assignment.", ["will finish", "will have finished", "finished"])
+        q2 = st.radio("2. GRAMMAR: Which sentence is correct?", ["Who's bag is this?", "Whose bag is this?", "Whom bag is this?"])
+        q3 = st.radio("3. GENERAL: A 'biscuit' in London is a _______ in New York.", ["cookie", "cracker", "muffin"])
+        q4
