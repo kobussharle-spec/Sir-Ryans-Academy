@@ -62,7 +62,7 @@ def display_academy_logo(width=350):
             </div>
         """, unsafe_allow_html=True)
 
-# --- 5. THE LOGIN GATE (PORTRAIT UPLOAD RESTORED) ---
+# --- 5. THE LOGIN GATE ---
 if not st.session_state.authenticated:
     display_academy_logo()
     st.title("🏛️ Academy Registry")
@@ -70,7 +70,39 @@ if not st.session_state.authenticated:
     with c1:
         name_in = st.text_input("Full Name:", key="reg_name")
         nick_in = st.text_input("Nickname:", key="reg_nick")
-        # RESTORED PORTRAIT UPLOADER
         u_photo = st.file_uploader("Upload Portrait for Academy Records:", type=['png', 'jpg', 'jpeg'], key="reg_photo")
     with c2:
-        key_in = st.text_input("License Key:", type="password", key="reg_
+        key_in = st.text_input("License Key:", type="password", key="reg_key")
+        if st.button("Register & Begin Placement Exam"):
+            if name_in and key_in.lower().strip() == "oxford2026":
+                st.session_state.authenticated = True
+                st.session_state.student_name = name_in
+                st.session_state.nickname = nick_in if nick_in else name_in
+                st.session_state.avatar = u_photo
+                st.rerun()
+            else:
+                st.warning("Ensure the name is filled and the key is 'oxford2026'.")
+    st.stop()
+
+# --- 6. ENTRANCE EVALUATION ---
+if st.session_state.authenticated and st.session_state.english_level == "Pending":
+    display_academy_logo(width=200)
+    st.title("📜 Entrance Evaluation")
+    with st.form("level_test"):
+        st.radio("1. Which spelling is the British colour?", ["Color", "Colour"], key="e1")
+        st.radio("2. A 'biscuit' is usually served with...", ["Tea", "Coffee"], key="e2")
+        st.radio("3. Correct this: 'I has been here.'", ["I have been here.", "I was being here."], key="e3")
+        if st.form_submit_button("Submit Assessment"):
+            st.session_state.english_level = "Scholar"
+            st.rerun()
+    st.stop()
+
+# --- 7. SIDEBAR ---
+with st.sidebar:
+    display_academy_logo(width=200)
+    st.divider()
+    if st.session_state.get("avatar"):
+        st.image(st.session_state.avatar, caption="Academy Portrait", use_container_width=True)
+    st.markdown(f"### 👤 {st.session_state.get('nickname')}")
+    st.info(f"🏅 Rank: {st.session_state.english_level}")
+    st.session_state.mute = st.checkbox
