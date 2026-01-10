@@ -95,19 +95,69 @@ with st.sidebar:
     subjects = ["General English", "Tenses", "Grammar Mastery", "Pronunciation", "Vocabulary", "Writing Emails", "Writing Letters", "Writing Reports", "Business English", "Legal English", "Maths", "Arts & Culture", "ELS Prep", "Interview Prep", "🏆 GRAND FINAL (100 Qs)"]
     st.session_state.current_subject = st.selectbox("Current Focus Area:", subjects)
 
+   import pdfplumber  # Ensure you add this to your requirements.txt
+
+# --- 4.5 NEW: VAULT STORAGE LOGIC ---
+if "vault" not in st.session_state:
+    st.session_state.vault = {}  # Stores filename: text_content
+
+# --- 7. SIDEBAR (REBUILT FOR THE VAULT) ---
+with st.sidebar:
+    # ... (Keep existing avatar/name/level code) ...
+
     st.divider()
-    st.markdown("### 🏛️ Library Vault")
-    with st.expander("📚 Resources"):
-        st.link_button("Oxford Dictionary", "https://www.oed.com/?tl=true")
-        st.link_button("Cambridge Dictionary", "https://dictionary.cambridge.org/dictionary/english/explanatory")
-        st.link_button("Phonetic Spelling Tool", "https://phonetic-spelling.com/")
-        st.link_button("BBC Grammar Guide", "https://www.bbc.co.uk/learningenglish/english/grammar")
-        st.link_button("English Level Test", "https://engxam.com/english-level-test/")
-        st.link_button("TEFL Certificate", "https://teacherrecord.com/tefl-certificate")
-        st.link_button("Baamboozle Games", "https://www.baamboozle.com/")
-        st.link_button("ABCya! Learning Fun", "https://www.abcya.com/")
-        st.link_button("Oxford University Press", "https://elt.oup.com/learning_resources/")
-        st.link_button("Cambridge Support", "https://www.cambridgeenglish.org/supporting-learners/?level=basic")
+    st.markdown("### 🏛️ Scholar's Personal Vault")
+    if st.session_state.vault:
+        for filename in st.session_state.vault.keys():
+            st.write(f"📄 {filename}")
+    else:
+        st.caption("Your vault is currently empty, Scholar.")
+
+    # ... (Keep existing Subject Selection and Library Links) ...
+
+# --- 10. THE STUDY DESKS (PDF UPLOAD & ANALYSIS) ---
+st.divider()
+col_left, col_right = st.columns(2)
+
+with col_left:
+    # ... (Keep existing Oral Practice code) ...
+
+with col_right:
+    st.subheader("📝 The Homework & Research Desk")
+    hw_file = st.file_uploader("Upload Workbook or PDF to Vault:", type=['pdf'])
+    
+    if hw_file:
+        if st.button("📤 Process & Save to Vault"):
+            with st.spinner("Sir Ryan is reviewing the parchment..."):
+                with pdfplumber.open(hw_file) as pdf:
+                    text = ""
+                    for page in pdf.pages:
+                        text += page.extract_text()
+                
+                # Save to session state vault
+                st.session_state.vault[hw_file.name] = text
+                st.success(f"'{hw_file.name}' has been safely stored in your Vault!")
+                st.balloons()
+
+    st.divider()
+    if st.session_state.vault:
+        selected_doc = st.selectbox("Select a file for Sir Ryan to read:", list(st.session_state.vault.keys()))
+        doc_query = st.text_input(f"What shall Sir Ryan check in '{selected_doc}'?")
+        
+        if st.button("🧐 Analyse Document"):
+            client = Groq(api_key=st.secrets["GROQ_API_KEY"])
+            context = st.session_state.vault[selected_doc][:4000] # First 4000 chars for context
+            
+            response = client.chat.completions.create(
+                model="llama-3.1-8b-instant",
+                messages=[
+                    {"role": "system", "content": "You are Sir Ryan. You are reviewing a student's uploaded workbook. Answer their question based on the document text provided."},
+                    {"role": "user", "content": f"Document Content: {context}\n\nStudent Question: {doc_query}"}
+                ]
+            ).choices[0].message.content
+            
+            st.info(response)
+            speak_text(response)
 
     st.divider()
     st.link_button("💬 WhatsApp Dean", "https://wa.me/27833976517")
