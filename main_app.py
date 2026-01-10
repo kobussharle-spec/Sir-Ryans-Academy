@@ -72,27 +72,4 @@ if not st.session_state.authenticated:
     with c1:
         name_in = st.text_input("Full Name:", key="reg_name")
         nick_in = st.text_input("Nickname:", key="reg_nick")
-        u_photo = st.file_uploader("Upload Portrait:", type=['png', 'jpg', 'jpeg'])
-    with c2:
-        key_in = st.text_input("License Key:", type="password", key="reg_key")
-        if st.button("Register & Begin Placement Exam"):
-            if name_in and key_in.lower().strip() == "oxford2026":
-                st.session_state.authenticated = True
-                st.session_state.student_name = name_in
-                st.session_state.nickname = nick_in if nick_in else name_in
-                st.session_state.avatar = u_photo
-                st.rerun()
-            else:
-                st.warning("Please ensure the name is filled and the key is correct.")
-    st.stop()
-
-# --- 5. LEVEL ASSESSMENT (The "Hickup" Fix) ---
-if st.session_state.authenticated and st.session_state.english_level == "Pending":
-    st.title("📜 Entrance Evaluation")
-    st.markdown(f"### Welcome, {st.session_state.nickname}. Please complete your 10-question placement exam.")
-    
-    with st.form("level_test_form"):
-        q1 = st.radio("1. TENSES: By this time tomorrow, I _______ my assignment.", ["will finish", "will have finished", "finished"])
-        q2 = st.radio("2. GRAMMAR: Which sentence is correct?", ["Who's bag is this?", "Whose bag is this?", "Whom bag is this?"])
-        q3 = st.radio("3. GENERAL: A 'biscuit' in London is a _______ in New York.", ["cookie", "cracker", "muffin"])
-        q4
+        u_photo = st.file_uploader("Upload Portrait:", type=['png',
