@@ -156,13 +156,14 @@ with col_right:
             response = client.chat.completions.create(
                 model="llama-3.1-8b-instant",
                 messages=[
-                    {"role": "system", "content": "You are Sir Ryan. You are reviewing a student's workbook. Answer questions based on the text. Mention biscuits and use British spelling."},
+                    {"role": "system", "content": "You are Sir Ryan. You are reviewing a student's workbook. Answer questions based on the text. Mention biscuits and use British spelling like colour and honour."},
                     {"role": "user", "content": f"Document: {context}\n\nQuestion: {doc_query}"}
                 ]
             ).choices[0].message.content
             
             st.info(response)
             speak_text(response)
+    
     st.divider()
     st.link_button("💬 WhatsApp Dean", "https://wa.me/27833976517")
     
