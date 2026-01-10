@@ -43,4 +43,7 @@ def speak_text(text):
         asyncio.run(communicate.save("temp.mp3"))
         with open("temp.mp3", "rb") as f:
             b64 = base64.b64encode(f.read()).decode()
-        st.markdown(f'<audio autoplay="true" src="data:audio/mp3;base64,{b64}">', unsafe_
+        # FIXED LINE BELOW:
+        st.markdown(f'<audio autoplay="true" src="data:audio/mp3;base64,{b64}">', unsafe_allow_html=True)
+    except: 
+        pass
