@@ -77,12 +77,19 @@ def speak_text(text):
         st.markdown(f'<audio autoplay="true" src="data:audio/mp3;base64,{b64}">', unsafe_allow_html=True)
     except: pass
 
-# --- 7. SIDEBAR (RESTORED LINKS & WHATSAPP) ---
+# --- 7. SIDEBAR (WITH RETAKE BUTTON) ---
 with st.sidebar:
-    if st.session_state.avatar: st.image(st.session_state.avatar, width=150)
+    if st.session_state.avatar: 
+        st.image(st.session_state.avatar, width=150)
     st.markdown(f"### 👤 {st.session_state.nickname}")
     st.info(f"🏅 Level: {st.session_state.english_level}")
     st.session_state.mute = st.checkbox("🔇 Mute Sir Ryan")
+    
+    st.divider()
+    # NEW: The Retake Button
+    if st.button("🔄 Retake Level Test"):
+        st.session_state.english_level = "Pending"
+        st.rerun()
     
     st.divider()
     subjects = ["General English", "Tenses", "Grammar Mastery", "Pronunciation", "Vocabulary", "Writing Emails", "Writing Letters", "Writing Reports", "Business English", "Legal English", "Maths", "Arts & Culture", "ELS Prep", "Interview Prep", "🏆 GRAND FINAL (100 Qs)"]
@@ -104,7 +111,8 @@ with st.sidebar:
 
     st.divider()
     st.link_button("💬 WhatsApp Dean", "https://wa.me/27833976517")
-    if st.button("🚪 Log Out"):
+    
+    if st.button("🚪 Save & Log Out"):
         st.session_state.authenticated = False
         st.session_state.english_level = "Pending"
         st.rerun()
