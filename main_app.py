@@ -130,15 +130,18 @@ with col_right:
     if hw_file:
         if st.button("📤 Process & Save to Vault"):
             with st.spinner("Sir Ryan is reviewing the parchment..."):
-                with pdfplumber.open(hw_file) as pdf:
-                    text = ""
-                    for page in pdf.pages:
-                        text += page.extract_text()
-                
-                # Save to session state vault
-                st.session_state.vault[hw_file.name] = text
-                st.success(f"'{hw_file.name}' has been safely stored in your Vault!")
-                st.balloons()
+                try:
+                    with pdfplumber.open(hw_file) as pdf:
+                        text = ""
+                        for page in pdf.pages:
+                            text += page.extract_text()
+                    
+                    # Save to session state vault
+                    st.session_state.vault[hw_file.name] = text
+                    st.success(f"'{hw_file.name}' has been safely stored!")
+                    st.balloons()
+                except Exception as e:
+                    st.error("The parchment is illegible! Please try another PDF.")
 
     st.divider()
     if st.session_state.vault:
@@ -147,19 +150,19 @@ with col_right:
         
         if st.button("🧐 Analyse Document"):
             client = Groq(api_key=st.secrets["GROQ_API_KEY"])
-            context = st.session_state.vault[selected_doc][:4000] # First 4000 chars for context
+            # We take a generous slice of the text for Sir Ryan to read
+            context = st.session_state.vault[selected_doc][:10000] 
             
             response = client.chat.completions.create(
                 model="llama-3.1-8b-instant",
                 messages=[
-                    {"role": "system", "content": "You are Sir Ryan. You are reviewing a student's uploaded workbook. Answer their question based on the document text provided."},
-                    {"role": "user", "content": f"Document Content: {context}\n\nStudent Question: {doc_query}"}
+                    {"role": "system", "content": "You are Sir Ryan. You are reviewing a student's workbook. Answer questions based on the text. Mention biscuits and use British spelling."},
+                    {"role": "user", "content": f"Document: {context}\n\nQuestion: {doc_query}"}
                 ]
             ).choices[0].message.content
             
             st.info(response)
             speak_text(response)
-
     st.divider()
     st.link_button("💬 WhatsApp Dean", "https://wa.me/27833976517")
     
