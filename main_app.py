@@ -50,34 +50,23 @@ if not st.session_state.auth:
     logo(); st.title("🏛️ Academy Registry")
     c1, c2 = st.columns(2)
     with c1:
-        fn = st.text_input("Full Name:")
-        nk = st.text_input("Nickname:")
+        fn, nk = st.text_input("Full Name:"), st.text_input("Nickname:")
         ph = st.file_uploader("Portrait:", type=['png', 'jpg', 'jpeg'])
     with c2:
         ky = st.text_input("License Key:", type="password")
-        if st.button("Register & Enter"):
+        if st.button("Register & Enter Academy"):
             if fn and ky.lower().strip() == "oxford2026":
                 st.session_state.auth, st.session_state.nick, st.session_state.avatar = True, (nk if nk else fn), ph
                 st.rerun()
     st.stop()
 
-# --- 5. ASSESSMENT ---
+# --- 5. 10-QUESTION ASSESSMENT ---
 if st.session_state.level == "Pending":
     logo(200); st.title(f"📜 Welcome, {st.session_state.nick}")
-    if st.button("🎖️ Returning Student? Skip to Hub"):
+    if st.button("🎖️ Skip Assessment (Veteran Student)"):
         st.session_state.level = "Senior Scholar"; st.rerun()
     with st.form("eval"):
-        st.write("10 Question Evaluation")
-        q = [st.radio(f"{i+1}. Question...", ["Option A", "Option B"]) for i in range(10)]
-        if st.form_submit_button("Submit"):
-            st.session_state.level = "Scholar"; st.rerun()
-    st.stop()
-
-# --- 6. SIDEBAR ---
-with st.sidebar:
-    logo(180); st.divider()
-    if st.session_state.avatar: st.image(st.session_state.avatar, use_container_width=True)
-    st.info(f"👤 {st.session_state.nick}\n\n🏅 Rank: {st.session_state.level}")
-    st.session_state.mute = st.checkbox("🔇 Mute Sir Ryan")
-    st.divider()
-    subjs = ["General English", "Tenses", "Grammar Mastery", "Pronunciation", "Vocabulary", "Writing Emails", "Writing Letters", "Writing Reports", "Business English", "Legal English", "Maths", "Arts &
+        st.write("Complete the 10-Question Placement Test")
+        for i in range(1, 11): st.radio(f"Question {i}: Select the British option", ["A", "B"], key=f"eval_{i}")
+        if st.form_submit_button("Submit Exam"):
+            st.session
