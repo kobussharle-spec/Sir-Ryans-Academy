@@ -3,30 +3,22 @@ from groq import Groq
 from streamlit_mic_recorder import mic_recorder
 import edge_tts, asyncio, base64
 
-# --- 1. STYLING ---
+# --- 1. CONFIG & STYLE ---
 st.set_page_config(page_title="Sir Ryan's Academy", layout="wide")
-if "theme" not in st.session_state: st.session_state.theme = "Oxford"
-bg = "#FFFFFF" if st.session_state.theme == "Oxford" else "#FDF5E6"
-
-st.markdown(f"""<style>
-    .stApp {{ background-color: {bg}; }}
-    div[data-baseweb="input"], div[data-baseweb="textarea"], .stSelectbox {{ border: 1px solid #C5A059 !important; border-radius: 8px; }}
-    .stButton>button {{ 
-        background: linear-gradient(145deg, #002147, #003366); color: #C5A059; 
-        border: 2px solid #C5A059; border-radius: 15px; font-weight: bold; width: 100%; height: 3.2em;
-    }}
-    .box {{ background: #f9f9f9; padding: 20px; border-radius: 12px; border: 1px solid #C5A059; margin-bottom: 20px; }}
-    .footer {{ text-align: center; color: #888; padding: 20px; font-size: 0.8em; }}
+st.markdown("""<style>
+    .stApp { background: white; }
+    div[data-baseweb="input"], div[data-baseweb="textarea"], .stSelectbox { border: 1px solid #C5A059 !important; border-radius: 8px; }
+    .stButton>button { background: linear-gradient(145deg, #002147, #003366); color: #C5A059; border: 2px solid #C5A059; border-radius: 15px; font-weight: bold; width: 100%; transition: 0.3s; }
+    .stButton>button:hover { background: #C5A059; color: #002147; }
+    .box { background: #f9f9f9; padding: 20px; border-radius: 12px; border: 1px solid #C5A059; margin-bottom: 20px; }
+    .footer { text-align: center; color: #888; font-size: 0.8em; padding: 20px; }
 </style>""", unsafe_allow_html=True)
 
-# --- 2. STATE ---
-items = {"auth":False, "msgs":[], "lvl":"Pending", "nk":"", "fn":"", "prog":{}, "sub":"General English", "mute":False, "vault":[], "feedback":[]}
-for k, v in items.items():
+# --- 2. STATE & UTILS ---
+for k, v in {"auth":False, "msgs":[], "lvl":"Pending", "nk":"", "prog":{}, "sub":"General English", "mute":False, "vault":[], "feed":[]}.items():
     if k not in st.session_state: st.session_state[k] = v
 
-# --- 3. UTILS ---
-def logo(w=250):
-    st.markdown(f"<div style='background:#002147;padding:15px;color:#C5A059;border-radius:10px;text-align:center;width:{w}px;border:2px solid #C5A059;margin:auto;'>🏛️ SIR RYAN'S ACADEMY</div>", unsafe_allow_html=True)
+def logo(w=250): st.markdown(f"<div style='background:#002147;padding:15px;color:#C5A059;border-radius:10px;text-align:center;width:{w}px;border:2px solid #C5A059;margin:auto;'>🏛️ SIR RYAN'S ACADEMY</div>", unsafe_allow_html=True)
 
 def speak(txt):
     if st.session_state.mute: return
@@ -37,31 +29,86 @@ def speak(txt):
         st.markdown(f'<audio autoplay src="data:audio/mp3;base64,{b}">', unsafe_allow_html=True)
     except: pass
 
-def groq_call(m, sys):
+def gcall(m, sys):
     c = Groq(api_key=st.secrets["GROQ_API_KEY"])
     return c.chat.completions.create(model="llama-3.1-8b-instant", messages=[{"role":"system","content":sys}]+m).choices[0].message.content
 
-# --- 4. REGISTRY ---
+# --- 3. REGISTRY ---
 if not st.session_state.auth:
     logo(400); st.title("🏛️ Academy Registry")
     c1, c2 = st.columns(2)
-    with c1: fn, nk = st.text_input("Full Name:"), st.text_input("Nickname:")
-    with c2: 
-        if st.text_input("Key:", type="password").lower() == "oxford2026" and st.button("Enter"):
-            st.session_state.auth, st.session_state.fn, st.session_state.nk = True, fn, (nk if nk else fn); st.rerun()
+    with c1:
+        fn, nk = st.text_input("Full Name"), st.text_input("Nickname")
+        st.file_uploader("Upload Portrait", type=['png', 'jpg'])
+    with c2:
+        if st.text_input("Key", type="password").lower() == "oxford2026" and st.button("Enter"):
+            st.session_state.auth, st.session_state.nk = True, (nk if nk else fn); st.rerun()
     st.stop()
 
-# --- 5. LEVEL TEST (10 QUESTIONS) ---
+# --- 4. LEVEL TEST ---
 if st.session_state.lvl == "Pending":
-    logo(200); st.title("📜 Entrance Examination")
-    if st.button("🎖️ Skip Assessment (Returning Student)"): 
-        st.session_state.lvl = "Senior Scholar"; st.rerun()
+    logo(200); st.title("📜 Entrance Exam")
+    if st.button("🎖️ Skip Assessment (Returning Student)"): st.session_state.lvl = "Scholar"; st.rerun()
     with st.form("exam"):
-        qs = [
-            ("I ___ to the shop yesterday.", ["go", "went"]), ("She ___ her tea every morning.", ["drinks", "drink"]),
-            ("We ___ for three hours now.", ["have been waiting", "wait"]), ("By next year, I ___ my course.", ["will finish", "will have finished"]),
-            ("If I ___ you, I would study.", ["was", "were"]), ("He doesn't like biscuits, ___ he?", ["does", "doesn't"]),
-            ("The cat is sitting ___ the rug.", ["on", "at"]), ("Identify the British spelling:", ["Colour", "Color"]),
-            ("Which is a formal greeting?", ["Cheers", "Dear Sir/Madam"]), ("I look forward to ___ you.", ["meeting", "meet"])
-        ]
-        for i, (q, opts) in enumerate(qs):
+        qs = [("I ___ to London last week.", ["went", "go"]), ("She ___ her biscuits.", ["likes", "like"]), ("He ___ waiting since noon.", ["has been", "is"]), ("By 2027, I ___.", ["will finish", "will have finished"]), ("If I ___ rich...", ["were", "was"]), ("___ he like tea?", ["Does", "Do"]), ("Rug is ___ the floor.", ["on", "at"]), ("Spelling?", ["Colour", "Color"]), ("Greeting?", ["Dear Sir", "Hi"]), ("Look forward to ___.", ["seeing", "see"])]
+        for i, (q, o) in enumerate(qs): st.radio(f"{i+1}. {q}", o, key=f"q{i}")
+        if st.form_submit_button("Submit"): st.session_state.lvl = "Scholar"; st.rerun()
+    st.stop()
+
+# --- 5. SIDEBAR ---
+with st.sidebar:
+    logo(180); st.divider()
+    st.info(f"👤 {st.session_state.nk} | 🏅 {st.session_state.lvl}")
+    st.session_state.mute = st.toggle("🔇 Mute Sir Ryan", value=st.session_state.mute)
+    st.session_state.sub = st.selectbox("Hall:", ["General English", "Conversation", "Tenses", "Grammar", "Pronunciation", "Vocabulary", "Writing Emails", "Writing Letters", "Writing Reports", "Business English", "Legal English", "Maths", "Arts", "ELS Prep", "Interview Prep", "🏆 GRAND FINAL"])
+    with st.expander("📖 Resources"):
+        for n, u in {"Oxford":"https://www.oed.com/", "BBC English":"https://www.bbc.co.uk/learningenglish", "Gutenberg":"https://www.gutenberg.org/"}.items(): st.link_button(n, u)
+    if st.button("🚪 Logout"): st.session_state.clear(); st.rerun()
+
+# --- 6. HUB ---
+st.title(f"Hub: {st.session_state.sub}")
+cp = st.session_state.prog.get(st.session_state.sub, 0)
+st.progress(cp/100)
+
+with st.expander("🧭 Orientation Guide", expanded=(cp==0)):
+    st.write("1. **Audience:** Chat with Sir Ryan. 2. **Elocution:** Record and refine speech. 3. **Vault:** Upload PDFs for study. 4. **Quiz:** Pass to earn biscuits.")
+
+t1, t2, t3 = st.tabs(["🎙️ Study Desk", "📚 Vault", "✍️ Quiz"])
+with t1:
+    c1, c2 = st.columns(2)
+    with c1:
+        st.markdown("<div class='box'><h3>🎤 Elocution</h3>", unsafe_allow_html=True)
+        a = mic_recorder(start_prompt="⏺️ Record", stop_prompt="⏹️ Analyze", key='v34')
+        if a:
+            t = Groq(api_key=st.secrets["GROQ_API_KEY"]).audio.transcriptions.create(file=("a.wav", a['bytes']), model="whisper-large-v3", response_format="text")
+            f = gcall([{"role":"user","content":t}], "Critique British speech. Mention biscuits.")
+            st.session_state.feed.append(f); st.info(f); speak(f)
+        st.markdown("</div>", unsafe_allow_html=True)
+    with c2:
+        st.markdown("<div class='box'><h3>🌐 Translator</h3>", unsafe_allow_html=True)
+        tx = st.text_area("English:", height=60, key="tin")
+        la = st.selectbox("To:", ["Spanish", "French", "German", "Chinese", "Japanese"])
+        if st.button("Translate") and tx: st.success(gcall([{"role":"user","content":tx}], f"Translate to {la}"))
+        st.markdown("</div>", unsafe_allow_html=True)
+
+with t2:
+    up = st.file_uploader("Upload PDF:", type=['pdf'])
+    if up: st.session_state.vault.append(up.name); st.success(f"{up.name} added!")
+    st.write("**Vault:**", st.session_state.vault)
+
+with t3:
+    with st.form("h_qz"):
+        st.radio("Correct term?", ["Lift", "Elevator"])
+        if st.form_submit_button("Submit"): st.session_state.prog[st.session_state.sub] = min(100, cp+25); st.rerun()
+
+# --- 7. CHAT ---
+st.divider()
+for m in st.session_state.msgs:
+    with st.chat_message(m["role"]): st.markdown(m["content"])
+if p := st.chat_input("Ask..."):
+    st.session_state.msgs.append({"role":"user","content":p})
+    with st.chat_message("user"): st.markdown(p)
+    r = gcall(st.session_state.msgs, "You are Sir Ryan. Use British spelling.")
+    st.session_state.msgs.append({"role":"assistant","content":r}); speak(r); st.rerun()
+
+st.markdown("<div class='footer'>© 2026 J Steenekamp | Sir Ryan's Academy</div>", unsafe_allow_html=True)
