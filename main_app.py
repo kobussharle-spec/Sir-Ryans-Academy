@@ -143,27 +143,51 @@ with st.expander(f"Click to start the {st.session_state.current_subject} Examina
             st.balloons()
             st.success(f"Splendid! Your results for {st.session_state.current_subject} have been recorded. Have a biscuit!")
 
-# --- 10. THE STUDY DESKS (RESTORED BEST LAYOUT) ---
-st.divider()
-col_left, col_right = st.columns(2)
-
 with col_left:
-    st.subheader("🎤 Oral Examination")
-    rec = mic_recorder(start_prompt="⏺️ Record Practice", stop_prompt="⏹️ Save & Listen")
-    if rec:
-        st.audio(rec['bytes'])
-        if st.button("Submit to Sir Ryan"):
-            st.success("Analysis complete. Marvelous effort!")
+    st.subheader("🎤 Oral Examination & Elocution")
+    audio_data = mic_recorder(
+        start_prompt="⏺️ Begin Speaking",
+        stop_prompt="⏹️ End & Submit to Sir Ryan",
+        key='oral_recorder'
+    )
 
-with col_right:
-    st.subheader("📝 Homework Desk")
-    hw_text = st.text_area("1. Write your assignment here:")
-    if st.button("🚀 Submit Written Homework"):
-        st.success("Written homework received! A biscuit for you.")
-    st.divider()
-    hw_file = st.file_uploader("2. Or upload a file:", type=['pdf', 'docx', 'txt'])
-    if st.button("📤 Upload Homework File"):
-        if hw_file: st.success(f"File '{hw_file.name}' received.")
+    if audio_data:
+        # 1. Play back for the scholar
+        st.audio(audio_data['bytes'])
+        
+        if st.button("👂 Sir Ryan, did you hear that?"):
+            with st.spinner("The Headmaster is listening intently..."):
+                try:
+                    # 2. Send the audio bytes to Groq's Whisper model
+                    client = Groq(api_key=st.secrets["GROQ_API_KEY"])
+                    
+                    # We save the bytes to a temporary file for the API
+                    with open("temp_audio.wav", "wb") as f:
+                        f.write(audio_data['bytes'])
+                    
+                    with open("temp_audio.wav", "rb") as audio_file:
+                        transcription = client.audio.transcriptions.create(
+                            file=("temp_audio.wav", audio_file.read()),
+                            model="whisper-large-v3",
+                            response_format="text"
+                        )
+                    
+                    # 3. Sir Ryan gives feedback on the transcription
+                    st.markdown(f"**Sir Ryan heard:** *\"{transcription}\"*")
+                    
+                    critique_prompt = f"The student said: '{transcription}'. Please critique their English, elocution, and grammar in a posh British way. Mention their {st.session_state.english_level} level and give them a biscuit if they did well."
+                    
+                    response = client.chat.completions.create(
+                        model="llama-3.1-8b-instant",
+                        messages=[{"role": "system", "content": "You are Sir Ryan. You just heard the student speak. Respond with a critique of their spoken English."},
+                                  {"role": "user", "content": critique_prompt}]
+                    ).choices[0].message.content
+                    
+                    st.info(response)
+                    speak_text(response)
+                    
+                except Exception as e:
+                    st.error("Sir Ryan's ear trumpet is a bit dusty. Please try again!")
 
 # --- 11. CHAT HUB & COPYRIGHT (REPAIRED) ---
 st.divider()
