@@ -3,7 +3,7 @@ from groq import Groq
 from streamlit_mic_recorder import mic_recorder
 import edge_tts, asyncio, base64
 
-# --- 1. CONFIG & STYLE ---
+# --- 1. CONFIG & STYLING ---
 st.set_page_config(page_title="Sir Ryan's Academy", layout="wide")
 st.markdown("""<style>
     .stApp { background: white; }
@@ -52,7 +52,7 @@ if st.session_state.lvl == "Pending":
     with st.form("exam"):
         qs = [("I ___ to London last week.", ["went", "go"]), ("She ___ her biscuits.", ["likes", "like"]), ("He ___ waiting since noon.", ["has been", "is"]), ("By 2027, I ___.", ["will finish", "will have finished"]), ("If I ___ rich...", ["were", "was"]), ("___ he like tea?", ["Does", "Do"]), ("Rug is ___ the floor.", ["on", "at"]), ("Spelling?", ["Colour", "Color"]), ("Greeting?", ["Dear Sir", "Hi"]), ("Look forward to ___.", ["seeing", "see"])]
         for i, (q, o) in enumerate(qs): st.radio(f"{i+1}. {q}", o, key=f"q{i}")
-        if st.form_submit_button("Submit"): st.session_state.lvl = "Scholar"; st.rerun()
+        if st.form_submit_button("Submit Exam"): st.session_state.lvl = "Scholar"; st.rerun()
     st.stop()
 
 # --- 5. SIDEBAR ---
@@ -62,23 +62,32 @@ with st.sidebar:
     st.session_state.mute = st.toggle("🔇 Mute Sir Ryan", value=st.session_state.mute)
     st.session_state.sub = st.selectbox("Hall:", ["General English", "Conversation", "Tenses", "Grammar", "Pronunciation", "Vocabulary", "Writing Emails", "Writing Letters", "Writing Reports", "Business English", "Legal English", "Maths", "Arts", "ELS Prep", "Interview Prep", "🏆 GRAND FINAL"])
     with st.expander("📖 Resources"):
-        for n, u in {"Oxford":"https://www.oed.com/", "BBC English":"https://www.bbc.co.uk/learningenglish", "Gutenberg":"https://www.gutenberg.org/"}.items(): st.link_button(n, u)
+        for n, u in {"Oxford Dictionary":"https://www.oed.com/", "BBC English":"https://www.bbc.co.uk/learningenglish", "Project Gutenberg":"https://www.gutenberg.org/"}.items(): st.link_button(n, u)
     if st.button("🚪 Logout"): st.session_state.clear(); st.rerun()
 
 # --- 6. HUB ---
-st.title(f"Hub: {st.session_state.sub}")
+st.title(f"Academy Hub: {st.session_state.sub}")
 cp = st.session_state.prog.get(st.session_state.sub, 0)
+
+# --- PROGRESS BAR RESTORED ---
+st.write(f"**Subject Mastery:** {cp}%")
 st.progress(cp/100)
 
-with st.expander("🧭 Orientation Guide", expanded=(cp==0)):
-    st.write("1. **Audience:** Chat with Sir Ryan. 2. **Elocution:** Record and refine speech. 3. **Vault:** Upload PDFs for study. 4. **Quiz:** Pass to earn biscuits.")
+with st.expander("🧭 Orientation Guide: How to Succeed", expanded=(cp==0)):
+    st.markdown(f"""
+    **Welcome, Scholar {st.session_state.nk}!**
+    - **Audience:** Use the chat at the bottom to ask me any questions about {st.session_state.sub}.
+    - **Elocution:** Record your voice to receive my feedback on your British accent and pronunciation.
+    - **Vault:** Upload your PDFs, books, or homework assignments here for safe keeping.
+    - **Quiz:** Complete the examination in the 'Quiz' tab to increase your progress bar.
+    """)
 
 t1, t2, t3 = st.tabs(["🎙️ Study Desk", "📚 Vault", "✍️ Quiz"])
 with t1:
     c1, c2 = st.columns(2)
     with c1:
         st.markdown("<div class='box'><h3>🎤 Elocution</h3>", unsafe_allow_html=True)
-        a = mic_recorder(start_prompt="⏺️ Record", stop_prompt="⏹️ Analyze", key='v34')
+        a = mic_recorder(start_prompt="⏺️ Record", stop_prompt="⏹️ Analyze", key='v35')
         if a:
             t = Groq(api_key=st.secrets["GROQ_API_KEY"]).audio.transcriptions.create(file=("a.wav", a['bytes']), model="whisper-large-v3", response_format="text")
             f = gcall([{"role":"user","content":t}], "Critique British speech. Mention biscuits.")
@@ -92,23 +101,17 @@ with t1:
         st.markdown("</div>", unsafe_allow_html=True)
 
 with t2:
-    up = st.file_uploader("Upload PDF:", type=['pdf'])
-    if up: st.session_state.vault.append(up.name); st.success(f"{up.name} added!")
-    st.write("**Vault:**", st.session_state.vault)
+    st.markdown("<div class='box'>", unsafe_allow_html=True)
+    up = st.file_uploader("Upload PDF Library:", type=['pdf'])
+    if up: st.session_state.vault.append(up.name); st.success(f"{up.name} added to vault!")
+    st.write("**Your Vault:**", st.session_state.vault)
+    st.markdown("---")
+    st.write("**Recent Feedback:**")
+    for fb in st.session_state.feed[-2:]: st.caption(f"Sir Ryan: {fb[:150]}...")
+    st.markdown("</div>", unsafe_allow_html=True)
 
 with t3:
     with st.form("h_qz"):
-        st.radio("Correct term?", ["Lift", "Elevator"])
-        if st.form_submit_button("Submit"): st.session_state.prog[st.session_state.sub] = min(100, cp+25); st.rerun()
-
-# --- 7. CHAT ---
-st.divider()
-for m in st.session_state.msgs:
-    with st.chat_message(m["role"]): st.markdown(m["content"])
-if p := st.chat_input("Ask..."):
-    st.session_state.msgs.append({"role":"user","content":p})
-    with st.chat_message("user"): st.markdown(p)
-    r = gcall(st.session_state.msgs, "You are Sir Ryan. Use British spelling.")
-    st.session_state.msgs.append({"role":"assistant","content":r}); speak(r); st.rerun()
-
-st.markdown("<div class='footer'>© 2026 J Steenekamp | Sir Ryan's Academy</div>", unsafe_allow_html=True)
+        st.radio("Which is the correct British term?", ["Flat", "Apartment"])
+        if st.form_submit_button("Submit Paper"): 
+            st.session_state.prog[st.session_state.sub] = min(100, cp+25); st.rerun()
