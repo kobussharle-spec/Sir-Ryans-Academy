@@ -123,7 +123,7 @@ with st.expander(f"Take the {st.session_state.current_subject} Assessment"):
         if st.form_submit_button("Submit Answers"):
             st.balloons()
             st.success("Marvelous! Your results are stored. Time for a biscuit!")
-
+            
 # --- 7. THE STUDY DESKS ---
 st.divider()
 col_left, col_right = st.columns(2)
@@ -136,4 +136,77 @@ with col_left:
         if st.button("👂 Ask Sir Ryan's Opinion"):
             with st.spinner("Sir Ryan is listening..."):
                 try:
-                    client = Groq(api_key=
+                    # Fix: Ensure brackets are perfectly closed here
+                    client = Groq(api_key=st.secrets["GROQ_API_KEY"])
+                    with open("temp.wav", "wb") as f: 
+                        f.write(audio_data['bytes'])
+                    with open("temp.wav", "rb") as af:
+                        trans = client.audio.transcriptions.create(file=("temp.wav", af.read()), model="whisper-large-v3", response_format="text")
+                    
+                    st.markdown(f"**Heard:** *\"{trans}\"*")
+                    resp = client.chat.completions.create(
+                        model="llama-3.1-8b-instant", 
+                        messages=[
+                            {"role": "system", "content": "You are Sir Ryan. Critique the speech politely. Mention biscuits and use British spelling."},
+                            {"role": "user", "content": trans}
+                        ]
+                    ).choices[0].message.content
+                    st.info(resp)
+                    speak_text(resp)
+                except Exception as e: 
+                    st.error(f"Ear trumpet failure: {e}")
+
+with col_right:
+    st.subheader("📝 PDF Research Desk")
+    hw_file = st.file_uploader("Upload Workbook to Vault:", type=['pdf'])
+    if hw_file and st.button("📤 Secure in Vault"):
+        try:
+            with pdfplumber.open(hw_file) as pdf:
+                text = "".join([page.extract_text() for page in pdf.pages])
+            st.session_state.vault[hw_file.name] = text
+            st.success(f"'{hw_file.name}' is now in your Library!")
+        except:
+            st.error("Could not read the parchment.")
+
+    if st.session_state.vault:
+        sel_doc = st.selectbox("Select document to discuss:", list(st.session_state.vault.keys()))
+        doc_q = st.text_input("Question for Sir Ryan about this file:")
+        if st.button("🧐 Analyse Parchment"):
+            try:
+                client = Groq(api_key=st.secrets["GROQ_API_KEY"])
+                resp = client.chat.completions.create(
+                    model="llama-3.1-8b-instant", 
+                    messages=[
+                        {"role": "system", "content": "You are Sir Ryan. Use the text to answer the student. Mention biscuits."},
+                        {"role": "user", "content": f"Text: {st.session_state.vault[sel_doc][:5000]}\nQ: {doc_q}"}
+                    ]
+                ).choices[0].message.content
+                st.info(resp)
+                speak_text(resp)
+            except Exception as e:
+                st.error(f"Analysis failed: {e}")
+
+# --- 8. CHAT HUB ---
+st.divider()
+st.subheader("💬 Audience with the Headmaster")
+for msg in st.session_state.messages:
+    with st.chat_message(msg["role"]): st.markdown(msg["content"])
+
+if prompt := st.chat_input("Ask Sir Ryan..."):
+    st.session_state.messages.append({"role": "user", "content": prompt})
+    with st.chat_message("user"): st.markdown(prompt)
+    with st.chat_message("assistant"):
+        try:
+            client = Groq(api_key=st.secrets["GROQ_API_KEY"])
+            resp = client.chat.completions.create(
+                model="llama-3.1-8b-instant", 
+                messages=[{"role": "system", "content": "You are Sir Ryan. Use British spelling and mention biscuits."}] + st.session_state.messages
+            ).choices[0].message.content
+            st.markdown(resp)
+            st.session_state.messages.append({"role": "assistant", "content": resp})
+            speak_text(resp)
+        except Exception as e:
+            st.error("Sir Ryan is at tea.")
+
+st.markdown("<br><hr><center><p style='color: #888888;'>© 2026 J Steenekamp | Sir Ryan's Academy | All Rights Reserved</p></center>", unsafe_allow_html=True)
+
