@@ -62,10 +62,9 @@ def speak_text(text):
     except: 
         pass
 
-# --- 4. GATEKEEPER (LOGIN SCREEN) ---
+# --- 4. GATEKEEPER ---
 if not st.session_state.authenticated:
     st.title("🏛️ Academy Registry")
-    st.markdown("### Please present your credentials to the Headmaster.")
     c1, c2 = st.columns(2)
     with c1:
         name_in = st.text_input("Full Name:")
@@ -81,20 +80,16 @@ if not st.session_state.authenticated:
                 st.session_state.avatar = u_photo
                 st.rerun()
             else:
-                st.error("Invalid credentials. The Academy gates remain closed.")
+                st.error("Access denied. Please check your credentials.")
     st.stop()
 
-# --- 5. SIDEBAR (SUBJECTS & RESOURCES) ---
+# --- 5. SIDEBAR (COMPLETED & SEALED) ---
 with st.sidebar:
     if st.session_state.avatar: 
         st.image(st.session_state.avatar, width=150)
     st.markdown(f"### 👤 {st.session_state.nickname}")
     st.info(f"🏅 Level: {st.session_state.english_level}")
     st.session_state.mute = st.checkbox("🔇 Mute Sir Ryan")
-    
-    if st.button("🔄 Retake Level Test"):
-        st.session_state.english_level = "Pending"
-        st.rerun()
     
     st.divider()
     subjects = [
@@ -117,4 +112,45 @@ with st.sidebar:
         st.link_button("Baamboozle Games", "https://www.baamboozle.com/")
         st.link_button("ABCya!", "https://www.abcya.com/")
         st.link_button("Oxford Press", "https://elt.oup.com/learning_resources/")
-        st.link_button("Cambridge Support", "
+        st.link_button("Cambridge Support", "https://www.cambridgeenglish.org/supporting-learners/")
+
+    st.divider()
+    st.link_button("💬 WhatsApp Dean", "https://wa.me/27833976517")
+    if st.button("🚪 Log Out"):
+        st.session_state.authenticated = False
+        st.rerun()
+
+# --- 6. MAIN HUB ---
+st.title(f"Good day, {st.session_state.nickname}!")
+
+# Progress Metrics
+cols = st.columns(4)
+for i, (subj, val) in enumerate(st.session_state.progress.items()):
+    cols[i].metric(subj, f"{val}%")
+    cols[i].progress(val/100)
+
+# --- 7. MASTERY QUIZZES ---
+st.divider()
+st.subheader(f"📝 {st.session_state.current_subject} Mastery Quiz")
+with st.expander(f"Take the {st.session_state.current_subject} Assessment"):
+    num_qs = 100 if "GRAND FINAL" in st.session_state.current_subject else 20
+    with st.form("mastery_quiz"):
+        for i in range(1, num_qs + 1):
+            st.radio(f"Question {i}: Identify the correct usage.", ["Choice A", "Choice B", "Choice C"], key=f"quiz_{i}")
+        if st.form_submit_button("Submit Answers"):
+            st.balloons()
+            st.success("Splendid! Results archived. Have a biscuit!")
+
+# --- 8. THE STUDY DESKS ---
+st.divider()
+col_left, col_right = st.columns(2)
+
+with col_left:
+    st.subheader("🎤 Oral Elocution")
+    audio_data = mic_recorder(start_prompt="⏺️ Record Speech", stop_prompt="⏹️ End & Submit", key='oral_rec_final')
+    if audio_data:
+        st.audio(audio_data['bytes'])
+        if st.button("👂 Ask Sir Ryan's Opinion"):
+            with st.spinner("Sir Ryan is listening..."):
+                try:
+                    client = Groq
