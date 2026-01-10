@@ -157,17 +157,28 @@ with col_right:
     if st.button("📤 Upload Homework File"):
         if hw_file: st.success(f"File '{hw_file.name}' received.")
 
-# --- 11. CHAT HUB & COPYRIGHT (RESTORED) ---
+# --- 11. CHAT HUB & COPYRIGHT (REPAIRED) ---
 st.divider()
 st.subheader("💬 Audience with the Headmaster")
 for msg in st.session_state.messages:
-    with st.chat_message(msg["role"]): st.markdown(msg["content"])
+    with st.chat_message(msg["role"]): 
+        st.markdown(msg["content"])
 
 if prompt := st.chat_input("Ask Sir Ryan..."):
     st.session_state.messages.append({"role": "user", "content": prompt})
-    with st.chat_message("user"): st.markdown(prompt)
+    with st.chat_message("user"): 
+        st.markdown(prompt)
     with st.chat_message("assistant"):
-        client = Groq(api_key=st.secrets["GROQ_API_KEY"])
-        resp = client.chat.completions.create(
-            model="llama-3.1-8b-instant",
-            messages=[{"role": "
+        try:
+            client = Groq(api_key=st.secrets["GROQ_API_KEY"])
+            resp = client.chat.completions.create(
+                model="llama-3.1-8b-instant",
+                messages=[{"role": "system", "content": f"You are Sir Ryan, the formal British Headmaster. Student level: {st.session_state.english_level}. Mention biscuits. Use British spelling like colour and honour."}] + st.session_state.messages
+            ).choices[0].message.content
+            st.markdown(resp)
+            st.session_state.messages.append({"role": "assistant", "content": resp})
+            speak_text(resp)
+        except Exception as e:
+            st.error("Sir Ryan is currently at tea. Please try again shortly.")
+
+st.markdown("<br><hr><center><p style='color: #888888;'>© 2026 J Steenekamp | Sir Ryan's Academy | All Rights Reserved</p></center>", unsafe_allow_html=True)
