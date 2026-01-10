@@ -5,7 +5,7 @@ import edge_tts
 import asyncio
 import base64
 import time
-import pdfplumber  # Ensure this is at the TOP and ALIGNED LEFT
+import pdfplumber  # <--- THIS LINE MUST BE FLUSH LEFT
 
 # --- 1. FOUNDATION ---
 st.set_page_config(page_title="Sir Ryan's Academy", page_icon="👑", layout="wide")
