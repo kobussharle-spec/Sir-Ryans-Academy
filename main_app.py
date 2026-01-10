@@ -7,6 +7,21 @@ import base64
 import time
 import pdfplumber  # <--- THIS LINE MUST BE FLUSH LEFT
 
+# --- 3. SESSION STATES ---
+if "authenticated" not in st.session_state:
+    st.session_state.update({
+        "authenticated": False, 
+        "messages": [], 
+        "student_name": "Scholar",
+        "nickname": "Scholar", 
+        "avatar": None, 
+        "mute": False,
+        "english_level": "Pending", 
+        "current_subject": "General English",
+        "progress": {"Grammar": 0, "Tenses": 0, "Vocab": 0, "Business": 0},
+        "vault": {}  # <--- ENSURE THIS IS HERE TO STORE THE PDFS
+    })
+
 # --- 1. FOUNDATION ---
 st.set_page_config(page_title="Sir Ryan's Academy", page_icon="👑", layout="wide")
 
