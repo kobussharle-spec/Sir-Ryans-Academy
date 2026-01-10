@@ -13,9 +13,14 @@ st.set_page_config(page_title="Sir Ryan's Academy", page_icon="👑", layout="wi
 # --- 2. SESSION STATES ---
 if "authenticated" not in st.session_state:
     st.session_state.update({
-        "authenticated": False, "messages": [], "student_name": "Scholar",
-        "nickname": "Scholar", "avatar": None, "mute": False,
-        "english_level": "Pending", "current_subject": "General English",
+        "authenticated": False, 
+        "messages": [], 
+        "student_name": "Scholar",
+        "nickname": "Scholar", 
+        "avatar": None, 
+        "mute": False,
+        "english_level": "Pending", 
+        "current_subject": "General English",
         "progress": {"Grammar": 45, "Tenses": 30, "Vocab": 60, "Business": 20},
         "vault": {}
     })
@@ -32,7 +37,7 @@ def speak_text(text):
         st.markdown(f'<audio autoplay="true" src="data:audio/mp3;base64,{b64}">', unsafe_allow_html=True)
     except: pass
 
-# --- 4. GATEKEEPER & LEVEL TEST ---
+# --- 4. GATEKEEPER ---
 if not st.session_state.authenticated:
     st.title("🏛️ Academy Registry")
     c1, c2 = st.columns(2)
@@ -51,6 +56,7 @@ if not st.session_state.authenticated:
                 st.rerun()
     st.stop()
 
+# --- 5. ENTRANCE EXAM ---
 if st.session_state.english_level == "Pending":
     st.title("📜 Entrance Examination")
     if st.button("🏆 Skip to Advanced Executive"):
@@ -63,7 +69,7 @@ if st.session_state.english_level == "Pending":
             st.rerun()
     st.stop()
 
-# --- 5. SIDEBAR ---
+# --- 6. SIDEBAR (SUBJECTS & RESOURCES) ---
 with st.sidebar:
     if st.session_state.avatar: st.image(st.session_state.avatar, width=150)
     st.markdown(f"### 👤 {st.session_state.nickname}")
@@ -98,5 +104,101 @@ with st.sidebar:
         st.session_state.authenticated = False
         st.rerun()
 
-# --- 6. MAIN HUB (PROGRESS SECTION) ---
+# --- 7. MAIN HALL (PROGRESS) ---
 st.title(f"Good day, {st.session_state.nickname}!")
+
+# Progress Metrics
+cols = st.columns(4)
+for i, (subj, val) in enumerate(st.session_state.progress.items()):
+    cols[i].metric(subj, f"{val}%")
+    cols[i].progress(val/100)
+
+# --- 8. MASTERY QUIZZES ---
+st.divider()
+st.subheader(f"📝 {st.session_state.current_subject} Mastery Quiz")
+with st.expander(f"Take the {st.session_state.current_subject} Assessment"):
+    num_qs = 100 if "GRAND FINAL" in st.session_state.current_subject else 20
+    with st.form("mastery_quiz"):
+        st.write(f"This assessment contains {num_qs} questions.")
+        for i in range(1, num_qs + 1):
+            st.radio(f"Question {i}: Identify the correct usage.", ["Choice A", "Choice B", "Choice C"], key=f"quiz_{i}")
+        if st.form_submit_button("Submit Answers"):
+            st.balloons()
+            st.success("Splendid! Results archived. Have a biscuit!")
+
+# --- 9. THE STUDY DESKS ---
+st.divider()
+col_left, col_right = st.columns(2)
+
+with col_left:
+    st.subheader("🎤 Oral Elocution")
+    audio_data = mic_recorder(
+        start_prompt="⏺️ Record Speech", 
+        stop_prompt="⏹️ End & Submit", 
+        key='oral_recorder_v1'
+    )
+    if audio_data:
+        st.audio(audio_data['bytes'])
+        if st.button("👂 Ask Sir Ryan's Opinion"):
+            with st.spinner("Sir Ryan is listening..."):
+                try:
+                    client = Groq(api_key=st.secrets["GROQ_API_KEY"])
+                    with open("temp.wav", "wb") as f: f.write(audio_data['bytes'])
+                    with open("temp.wav", "rb") as af:
+                        trans = client.audio.transcriptions.create(file=("temp.wav", af.read()), model="whisper-large-v3", response_format="text")
+                    st.markdown(f"**Heard:** *\"{trans}\"*")
+                    resp = client.chat.completions.create(
+                        model="llama-3.1-8b-instant", 
+                        messages=[{"role": "system", "content": "You are Sir Ryan. Critique speech politely. Mention biscuits and use British spelling."},{"role": "user", "content": trans}]
+                    ).choices[0].message.content
+                    st.info(resp)
+                    speak_text(resp)
+                except Exception as e: st.error(f"Error: {e}")
+
+with col_right:
+    st.subheader("📝 PDF Homework & Research Vault")
+    hw_file = st.file_uploader("Upload Workbook to Vault:", type=['pdf'])
+    if hw_file and st.button("📤 Secure in Vault"):
+        try:
+            with pdfplumber.open(hw_file) as pdf:
+                text = "".join([page.extract_text() for page in pdf.pages])
+            st.session_state.vault[hw_file.name] = text
+            st.success(f"'{hw_file.name}' is now in your Library!")
+        except: st.error("Could not read PDF.")
+
+    if st.session_state.vault:
+        sel_doc = st.selectbox("Select document to discuss:", list(st.session_state.vault.keys()))
+        doc_q = st.text_input("Question for Sir Ryan about this file:")
+        if st.button("🧐 Analyse Document"):
+            try:
+                client = Groq(api_key=st.secrets["GROQ_API_KEY"])
+                resp = client.chat.completions.create(
+                    model="llama-3.1-8b-instant", 
+                    messages=[{"role": "system", "content": "You are Sir Ryan. Answer based on text. Use British spelling."},{"role": "user", "content": f"Text: {st.session_state.vault[sel_doc][:5000]}\nQ: {doc_q}"}]
+                ).choices[0].message.content
+                st.info(resp)
+                speak_text(resp)
+            except Exception as e: st.error(f"Error: {e}")
+
+# --- 10. CHAT HUB ---
+st.divider()
+st.subheader("💬 Audience with the Headmaster")
+for msg in st.session_state.messages:
+    with st.chat_message(msg["role"]): st.markdown(msg["content"])
+
+if prompt := st.chat_input("Ask Sir Ryan..."):
+    st.session_state.messages.append({"role": "user", "content": prompt})
+    with st.chat_message("user"): st.markdown(prompt)
+    with st.chat_message("assistant"):
+        try:
+            client = Groq(api_key=st.secrets["GROQ_API_KEY"])
+            resp = client.chat.completions.create(
+                model="llama-3.1-8b-instant", 
+                messages=[{"role": "system", "content": "You are Sir Ryan. Use British spelling and mention biscuits."}] + st.session_state.messages
+            ).choices[0].message.content
+            st.markdown(resp)
+            st.session_state.messages.append({"role": "assistant", "content": resp})
+            speak_text(resp)
+        except: st.error("Sir Ryan is currently at tea.")
+
+st.markdown("<br><hr><center><p style='color: #888888;'>© 2026 J Steenekamp | Sir Ryan's Academy | All Rights Reserved</p></center>", unsafe_allow_html=True)
