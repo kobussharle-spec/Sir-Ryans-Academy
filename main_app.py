@@ -99,4 +99,4 @@ with st.sidebar:
         st.rerun()
 
 # --- 6. MAIN HUB (PROGRESS SECTION) ---
-st.title(f"Good day, {st.session
+st.title(f"Good day, {st.session_state.nickname}!")
