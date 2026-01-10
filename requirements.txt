@@ -1,8 +1,5 @@
 streamlit
 groq
-pypdf
-PyPDF2
 streamlit-mic-recorder
 edge-tts
-asyncio
-requests
+pdfplumber
