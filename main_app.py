@@ -57,7 +57,7 @@ if st.session_state.english_level == "Pending":
         st.session_state.english_level = "Advanced Executive"
         st.rerun()
     with st.form("entry_exam"):
-        st.write("10 Questions to determine your rank...")
+        st.write("Determine your rank with these initial questions...")
         if st.form_submit_button("Submit Exam"):
             st.session_state.english_level = "Intermediate"
             st.rerun()
@@ -98,32 +98,5 @@ with st.sidebar:
         st.session_state.authenticated = False
         st.rerun()
 
-# --- 6. MAIN HUB (PROGRESS RESTORED) ---
-st.title(f"Good day, {st.session_state.nickname}!")
-
-# Progress Metrics
-cols = st.columns(4)
-for i, (subj, val) in enumerate(st.session_state.progress.items()):
-    cols[i].metric(subj, f"{val}%")
-    cols[i].progress(val/100)
-
-# --- 7. MASTERY QUIZZES ---
-st.divider()
-st.subheader(f"📝 {st.session_state.current_subject} Mastery Quiz")
-with st.expander(f"Take the {st.session_state.current_subject} Assessment"):
-    num_qs = 100 if "GRAND FINAL" in st.session_state.current_subject else 20
-    with st.form("mastery_quiz"):
-        st.write(f"This assessment contains {num_qs} questions.")
-        for i in range(1, num_qs + 1):
-            st.radio(f"Question {i}: Identify the correct usage.", ["Choice A", "Choice B", "Choice C"], key=f"quiz_{i}")
-        if st.form_submit_button("Submit Answers"):
-            st.balloons()
-            st.success("Splendid! Results archived. Have a biscuit!")
-
-# --- 8. THE STUDY DESKS (HOMEWORK RESTORED) ---
-st.divider()
-col_left, col_right = st.columns(2)
-
-with col_left:
-    st.subheader("🎤 Oral Elocution")
-    audio_data = mic_recorder(start_prompt="⏺️ Record Speech", stop_prompt="⏹️ End & Submit", key
+# --- 6. MAIN HUB (PROGRESS SECTION) ---
+st.title(f"Good day, {st.session
