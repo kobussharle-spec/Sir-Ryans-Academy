@@ -1,99 +1,130 @@
 import streamlit as st
 from groq import Groq
 from streamlit_mic_recorder import mic_recorder
-import edge_tts
-import asyncio
-import base64
-import time
-import pdfplumber
-import io
+import edge_tts, asyncio, base64, time, pdfplumber
 
-# --- 1. FOUNDATION & SNASSY STYLING ---
+# --- 1. SETUP & STYLE ---
 st.set_page_config(page_title="Sir Ryan's Academy", page_icon="👑", layout="wide")
-
-st.markdown("""
-    <style>
+st.markdown("""<style>
     .stApp { background-color: #FFFFFF; }
-    .stButton>button {
-        background-color: #002147;
-        color: #C5A059;
-        border-radius: 20px;
-        border: 2px solid #C5A059;
-        font-weight: bold;
-        transition: 0.3s;
-    }
-    .stButton>button:hover { background-color: #C5A059; color: #002147; border: 2px solid #002147; }
-    .stMetric { background-color: #f0f2f6; padding: 15px; border-radius: 10px; border-left: 5px solid #002147; }
+    .stButton>button { background-color: #002147; color: #C5A059; border-radius: 20px; font-weight: bold; }
     h1, h2, h3 { color: #002147; font-family: 'Times New Roman'; }
-    .stExpander { border: 1px solid #C5A059; border-radius: 10px; }
+    .stMetric { background-color: #f0f2f6; padding: 10px; border-radius: 10px; border-left: 5px solid #002147; }
     .quiz-box { background-color: #f9f9f9; padding: 20px; border-radius: 15px; border: 1px solid #C5A059; }
-    </style>
-    """, unsafe_allow_html=True)
+</style>""", unsafe_allow_html=True)
 
-# --- 2. SESSION STATES ---
-if "authenticated" not in st.session_state:
-    st.session_state.authenticated = False
-if "messages" not in st.session_state:
-    st.session_state.messages = []
-if "english_level" not in st.session_state:
-    st.session_state.english_level = "Pending"
-if "progress" not in st.session_state:
-    st.session_state.progress = {"Grammar": 0, "Tenses": 0, "Vocab": 0, "Business": 0}
-if "vault" not in st.session_state:
-    st.session_state.vault = {}
-if "avatar" not in st.session_state:
-    st.session_state.avatar = None
+# --- 2. STATES & VOICE ---
+for key in ["auth", "msgs", "level", "vault", "avatar", "prog"]:
+    if key not in st.session_state:
+        st.session_state[key] = False if key=="auth" else [] if key=="msgs" else "Pending" if key=="level" else {} if key=="vault" else None if key=="avatar" else {"Grammar": 0, "Tenses": 0, "Vocab": 0, "Business": 0}
 
-# --- 3. VOICE ENGINE ---
-def speak_text(text):
-    if st.session_state.get("mute", False): return
+def speak(text):
+    if st.session_state.get("mute"): return
     try:
-        clean = text.replace("**", "").replace("#", "")
-        communicate = edge_tts.Communicate(clean, "en-GB-RyanNeural")
-        asyncio.run(communicate.save("temp.mp3"))
-        with open("temp.mp3", "rb") as f:
-            b64 = base64.b64encode(f.read()).decode()
+        comm = edge_tts.Communicate(text.replace("**",""), "en-GB-RyanNeural")
+        asyncio.run(comm.save("t.mp3"))
+        with open("t.mp3", "rb") as f: b64 = base64.b64encode(f.read()).decode()
         st.markdown(f'<audio autoplay="true" src="data:audio/mp3;base64,{b64}">', unsafe_allow_html=True)
     except: pass
 
-# --- 4. SHARED LOGO ---
-def display_academy_logo(width=350):
-    try:
-        st.image("logo.png", width=width)
-    except:
-        st.markdown(f"""
-            <div style="background-color: #002147; padding: 20px; border-radius: 10px; border: 2px solid #C5A059; text-align: center; width: {width}px;">
-                <h2 style="color: #C5A059; margin: 0; font-family: 'Times New Roman';">🏛️ SIR RYAN'S ACADEMY</h2>
-            </div>
-        """, unsafe_allow_html=True)
+def logo(w=350):
+    try: st.image("logo.png", width=w)
+    except: st.markdown(f"<div style='background:#002147;padding:10px;color:#C5A059;border-radius:10px;text-align:center;width:{w}px;'>🏛️ SIR RYAN'S ACADEMY</div>", unsafe_allow_html=True)
 
-# --- 5. THE LOGIN GATE ---
-if not st.session_state.authenticated:
-    display_academy_logo()
-    st.title("🏛️ Academy Registry")
+# --- 3. REGISTRY & EVALUATION ---
+if not st.session_state.auth:
+    logo(); st.title("🏛️ Academy Registry")
     c1, c2 = st.columns(2)
     with c1:
-        name_in = st.text_input("Full Name:", key="reg_name")
-        nick_in = st.text_input("Nickname:", key="reg_nick")
-        u_photo = st.file_uploader("Upload Portrait:", type=['png', 'jpg', 'jpeg'], key="reg_photo")
+        name = st.text_input("Full Name:")
+        nick = st.text_input("Nickname:")
+        photo = st.file_uploader("Upload Portrait:", type=['png', 'jpg'])
     with c2:
-        key_in = st.text_input("License Key:", type="password", key="reg_key")
+        key = st.text_input("License Key:", type="password")
         if st.button("Register & Begin"):
-            if name_in and key_in.lower().strip() == "oxford2026":
-                st.session_state.authenticated = True
-                st.session_state.student_name = name_in
-                st.session_state.nickname = nick_in if nick_in else name_in
-                st.session_state.avatar = u_photo
+            if name and key.lower().strip() == "oxford2026":
+                st.session_state.auth, st.session_state.nick, st.session_state.avatar = True, (nick if nick else name), photo
                 st.rerun()
-            else:
-                st.warning("Please check credentials. Key: 'oxford2026'.")
     st.stop()
 
-# --- 6. LEVEL ASSESSMENT ---
-if st.session_state.authenticated and st.session_state.english_level == "Pending":
-    display_academy_logo(width=200)
-    st.title("📜 Entrance Evaluation")
-    with st.form("level_test"):
-        q1 = st.radio("1. Spelling:", ["Honour", "Honor"])
-        q2 = st.radio("2. A 'biscuit' is a:", ["Cookie", "Muffin"])
-        if st
+if st.session_state.level == "Pending":
+    logo(200); st.title("📜 Entrance Evaluation")
+    with st.form("eval"):
+        q1 = st.radio("Correct British spelling?", ["Color", "Colour"])
+        q2 = st.radio("A 'biscuit' is a...", ["Cookie", "Muffin"])
+        if st.form_submit_button("Enter Academy"):
+            st.session_state.level = "Senior Scholar"
+            st.rerun()
+    st.stop()
+
+# --- 4. SIDEBAR (SUBJECTS & LINKS) ---
+with st.sidebar:
+    logo(180); st.divider()
+    if st.session_state.avatar: st.image(st.session_state.avatar, use_container_width=True)
+    st.info(f"👤 {st.session_state.nick}\n\n🏅 Rank: {st.session_state.level}")
+    st.session_state.mute = st.checkbox("🔇 Mute Sir Ryan")
+    st.divider()
+    subjs = ["General English", "Tenses", "Grammar Mastery", "Pronunciation", "Vocabulary", "Writing Emails", "Writing Letters", "Writing Reports", "Business English", "Legal English", "Maths", "Arts & Culture", "ELS Prep", "Interview Prep", "🏆 GRAND FINAL"]
+    st.session_state.cur_sub = st.selectbox("Focus Area:", subjs)
+    st.divider()
+    with st.expander("📖 Library Vault"):
+        st.link_button("Oxford Dictionary", "https://www.oed.com/")
+        st.link_button("Cambridge Dictionary", "https://dictionary.cambridge.org/")
+        st.link_button("BBC Learning English", "https://www.bbc.co.uk/learningenglish")
+        st.link_button("Phonetic Spelling", "https://phonetic-spelling.com/")
+        st.link_button("Baamboozle", "https://www.baamboozle.com/")
+    if st.button("🚪 Log Out"):
+        st.session_state.auth = False
+        st.rerun()
+
+# --- 5. MAIN HUB ---
+logo(220); st.title(f"Welcome to the {st.session_state.cur_sub} Hall")
+cols = st.columns(4)
+for i, (s, v) in enumerate(st.session_state.prog.items()): cols[i].metric(s, f"{v}%")
+
+st.divider()
+st.subheader("✍️ Module Examination")
+with st.container():
+    st.markdown(f"<div class='quiz-box'><strong>Hall: {st.session_state.cur_sub}</strong>", unsafe_allow_html=True)
+    if st.session_state.cur_sub == "Tenses":
+        with st.form("quiz"):
+            ans = st.radio("I _______ (work) here for years.", ["work", "have been working"])
+            if st.form_submit_button("Submit"):
+                st.success("Splendid! Have a biscuit."); st.session_state.prog["Tenses"] = 25
+    else: st.write("Exam paper is being drafted.")
+    st.markdown("</div>", unsafe_allow_html=True)
+
+st.divider()
+c1, c2 = st.columns(2)
+with c1:
+    st.subheader("🎤 Oral Elocution")
+    aud = mic_recorder(start_prompt="⏺️ Record", stop_prompt="⏹️ Submit", key='v16')
+    if aud and st.button("Critique"):
+        st.info("Analysis: Your elocution is developing beautifully!")
+with c2:
+    st.subheader("📝 PDF & Homework Vault")
+    f = st.file_uploader("Upload PDF:", type=['pdf'])
+    if f and st.button("Archive"):
+        with pdfplumber.open(f) as pdf: txt = "".join([p.extract_text() for p in pdf.pages])
+        st.session_state.vault[f.name] = txt
+        st.success("Archived!")
+
+st.divider()
+st.subheader("✒️ Written Assignment Desk")
+st.text_area("Draft your essay here:", height=100)
+if st.button("🚀 Submit Homework"): st.success("Well done! A gold star for you.")
+
+st.divider()
+st.subheader("💬 Audience with the Headmaster")
+for m in st.session_state.msgs:
+    with st.chat_message(m["role"]): st.markdown(m["content"])
+
+if p := st.chat_input("Ask Sir Ryan..."):
+    st.session_state.msgs.append({"role": "user", "content": p})
+    with st.chat_message("user"): st.markdown(p)
+    with st.chat_message("assistant"):
+        client = Groq(api_key=st.secrets["GROQ_API_KEY"])
+        r = client.chat.completions.create(model="llama-3.1-8b-instant", messages=[{"role": "system", "content": "You are Sir Ryan. Use British spelling and mention biscuits."}] + st.session_state.msgs).choices[0].message.content
+        st.markdown(r); st.session_state.msgs.append({"role": "assistant", "content": r}); speak(r)
+
+st.markdown("<br><hr><center>© 2026 J Steenekamp | Sir Ryan's Academy</center>", unsafe_allow_html=True)
