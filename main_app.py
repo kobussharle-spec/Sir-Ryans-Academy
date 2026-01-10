@@ -63,8 +63,7 @@ def display_academy_logo(width=350):
     except:
         st.markdown(f"""
             <div style="background-color: #002147; padding: 20px; border-radius: 10px; border: 2px solid #C5A059; text-align: center; width: {width}px;">
-                <h1 style="color: #C5A059; margin: 0; font-family: 'Times New Roman';">🏛️</h1>
-                <h2 style="color: #C5A059; margin: 0; letter-spacing: 2px;">SIR RYAN'S ACADEMY</h2>
+                <h2 style="color: #C5A059; margin: 0; font-family: 'Times New Roman';">🏛️ SIR RYAN'S ACADEMY</h2>
             </div>
         """, unsafe_allow_html=True)
 
@@ -76,10 +75,25 @@ if not st.session_state.authenticated:
     with c1:
         name_in = st.text_input("Full Name:", key="reg_name")
         nick_in = st.text_input("Nickname:", key="reg_nick")
-        u_photo = st.file_uploader("Upload Portrait for Academy Records:", type=['png', 'jpg', 'jpeg'], key="reg_photo")
+        u_photo = st.file_uploader("Upload Portrait:", type=['png', 'jpg', 'jpeg'], key="reg_photo")
     with c2:
         key_in = st.text_input("License Key:", type="password", key="reg_key")
-        if st.button("Register & Begin Placement Exam"):
+        if st.button("Register & Begin"):
             if name_in and key_in.lower().strip() == "oxford2026":
                 st.session_state.authenticated = True
-                st.
+                st.session_state.student_name = name_in
+                st.session_state.nickname = nick_in if nick_in else name_in
+                st.session_state.avatar = u_photo
+                st.rerun()
+            else:
+                st.warning("Please check credentials. Key: 'oxford2026'.")
+    st.stop()
+
+# --- 6. LEVEL ASSESSMENT ---
+if st.session_state.authenticated and st.session_state.english_level == "Pending":
+    display_academy_logo(width=200)
+    st.title("📜 Entrance Evaluation")
+    with st.form("level_test"):
+        q1 = st.radio("1. Spelling:", ["Honour", "Honor"])
+        q2 = st.radio("2. A 'biscuit' is a:", ["Cookie", "Muffin"])
+        if st
