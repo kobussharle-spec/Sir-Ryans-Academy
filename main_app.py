@@ -1,28 +1,23 @@
 import streamlit as st
 from groq import Groq
 from streamlit_mic_recorder import mic_recorder
-import edge_tts, asyncio, base64, pdfplumber
+import edge_tts, asyncio, base64
 
-# --- 1. SETUP & SMART STYLING ---
+# --- 1. SETUP ---
 st.set_page_config(page_title="Sir Ryan's Academy", page_icon="👑", layout="wide")
 st.markdown("""<style>
     .stApp { background-color: #FFFFFF; }
-    div[data-baseweb="input"], div[data-baseweb="textarea"], .stSelectbox { border: 1px solid #C5A059 !important; border-radius: 8px !important; }
-    .stButton>button { background-color: #002147; color: #C5A059; border-radius: 12px; border: 1px solid #C5A059; font-weight: bold; transition: 0.3s; width: 100%; }
-    .stButton>button:hover { background-color: #C5A059; color: #002147; }
+    div[data-baseweb="input"], div[data-baseweb="textarea"], .stSelectbox { border: 1px solid #C5A059 !important; border-radius: 8px; }
+    .stButton>button { background-color: #002147; color: #C5A059; border-radius: 12px; border: 1px solid #C5A059; font-weight: bold; width: 100%; }
     .stProgress > div > div > div > div { background-color: #C5A059; }
-    h1, h2, h3 { color: #002147; font-family: 'Times New Roman'; }
-    .quiz-box, .desk-box { background-color: #f9f9f9; padding: 20px; border-radius: 12px; border: 1px solid #C5A059; margin-bottom: 20px; height: 100%; }
+    .quiz-box { background-color: #f9f9f9; padding: 20px; border-radius: 12px; border: 1px solid #C5A059; }
 </style>""", unsafe_allow_html=True)
 
-# --- 2. SESSION STATES ---
-for k, v in {"auth": False, "msgs": [], "level": "Pending", "avatar": None, "nick": "", "prog": 0, "sub": "General English"}.items():
+# --- 2. STATE ---
+for k, v in {"auth":False, "msgs":[], "level":"Pending", "nick":"", "prog":0, "sub":"General English"}.items():
     if k not in st.session_state: st.session_state[k] = v
 
-# --- 3. UTILITIES ---
-def logo(w=350):
-    st.markdown(f"<div style='background:#002147;padding:15px;color:#C5A059;border-radius:10px;text-align:center;width:{w}px;border:2px solid #C5A059;'>🏛️ SIR RYAN'S ACADEMY</div>", unsafe_allow_html=True)
-
+# --- 3. UTILS ---
 def speak(text):
     if st.session_state.get("mute"): return
     try:
@@ -32,32 +27,54 @@ def speak(text):
         st.markdown(f'<audio autoplay="true" src="data:audio/mp3;base64,{b}">', unsafe_allow_html=True)
     except: pass
 
-# --- 4. REGISTRY & ASSESSMENT ---
+# --- 4. LOGIN & EVAL ---
 if not st.session_state.auth:
-    logo(); st.title("🏛️ Academy Registry")
-    c1, c2 = st.columns(2)
-    with c1:
-        fn, nk = st.text_input("Full Name:"), st.text_input("Nickname:")
-        ph = st.file_uploader("Upload Portrait:", type=['png', 'jpg'])
-    with c2:
-        ky = st.text_input("License Key:", type="password")
-        if st.button("Register & Enter"):
-            if fn and ky.lower().strip() == "oxford2026":
-                st.session_state.auth, st.session_state.nick, st.session_state.avatar = True, (nk if nk else fn), ph
-                st.rerun()
+    st.title("🏛️ Academy Registry")
+    fn, nk = st.text_input("Full Name:"), st.text_input("Nickname:")
+    if st.text_input("Key:", type="password").lower() == "oxford2026":
+        if st.button("Register"):
+            st.session_state.auth, st.session_state.nick = True, (nk if nk else fn)
+            st.rerun()
     st.stop()
 
 if st.session_state.level == "Pending":
-    logo(200); st.title(f"📜 Evaluation: {st.session_state.nick}")
-    if st.button("🎖️ Skip Assessment"): st.session_state.level = "Senior Scholar"; st.rerun()
-    with st.form("eval_form"):
-        st.write("Determine your rank with this 10-question placement test:")
-        for i in range(1, 11): st.radio(f"Question {i}: Identify British Usage", ["Option A", "Option B"], key=f"e_{i}")
-        if st.form_submit_button("Submit Exam"): st.session_state.level = "Scholar"; st.rerun()
+    st.title(f"📜 Evaluation: {st.session_state.nick}")
+    if st.button("Skip"): st.session_state.level = "Scholar"; st.rerun()
+    with st.form("ev"):
+        for i in range(1, 4): st.radio(f"Q{i}", ["Option A", "Option B"], key=f"e{i}")
+        if st.form_submit_button("Submit"): st.session_state.level = "Scholar"; st.rerun()
     st.stop()
 
 # --- 5. SIDEBAR ---
 with st.sidebar:
-    logo(180); st.divider()
-    if st.session_state.avatar: st.image(st.session_state.avatar, use_container_width=True)
-    st.info(f"👤 {st.session_state
+    st.title("👑 Sir Ryan's")
+    st.info(f"👤 {st.session_state.nick}\n🏅 {st.session_state.level}")
+    st.session_state.mute = st.checkbox("Mute")
+    st.session_state.sub = st.selectbox("Hall:", ["General English", "Tenses", "Grammar", "Pronunciation", "Vocabulary", "Writing", "Business English", "🏆 GRAND FINAL"])
+    with st.expander("📖 Library"):
+        st.link_button("Oxford", "https://www.oed.com/")
+        st.link_button("Pride & Prejudice", "https://www.gutenberg.org/ebooks/1342")
+    if st.button("Logout"):
+        for k in list(st.session_state.keys()): del st.session_state[k]
+        st.rerun()
+
+# --- 6. HUB ---
+st.title(f"Hub: {st.session_state.sub}")
+st.progress(st.session_state.prog / 100)
+st.markdown("<div class='quiz-box'>", unsafe_allow_html=True)
+with st.form("qz"):
+    st.radio("Spelling?", ["Honour", "Honor"])
+    if st.form_submit_button("Submit"):
+        st.session_state.prog = min(100, st.session_state.prog + 10)
+        st.success("Correct! Have a biscuit."); st.rerun()
+st.markdown("</div>", unsafe_allow_html=True)
+
+# --- 7. DESKS ---
+c1, c2 = st.columns(2)
+with c1:
+    st.subheader("🎤 Elocution")
+    aud = mic_recorder(start_prompt="⏺️ Record", stop_prompt="⏹️ Analyze", key='v27')
+    if aud:
+        cl = Groq(api_key=st.secrets["GROQ_API_KEY"])
+        tr = cl.audio.transcriptions.create(file=("a.wav", aud['bytes']), model="whisper-large-v3", response_format="text")
+        fb
